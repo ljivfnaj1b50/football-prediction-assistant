@@ -19,10 +19,12 @@ else
 fi
 
 mkdir -p /var/www/$SITE
+mkdir -p /var/www/$SITE/data
 cp /opt/$PROJECT/index.html /var/www/$SITE/index.html
 cp /opt/$PROJECT/styles.css /var/www/$SITE/styles.css
 cp /opt/$PROJECT/app.js /var/www/$SITE/app.js
 cp /opt/$PROJECT/model.js /var/www/$SITE/model.js
+cp /opt/$PROJECT/data/matches.json /var/www/$SITE/data/matches.json
 
 cat > /etc/nginx/conf.d/$SITE.conf <<'EOF'
 server {

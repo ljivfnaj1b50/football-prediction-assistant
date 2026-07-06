@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鲸喜足球预测助手</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>鲸喜足球预测助手</h1>
+      <p>八维建模 · 总进球主攻 · 比分小博 · 赛后复盘</p>
+    </div>
+    <button id="seedBtn" class="ghost">载入示例</button>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <h2>① 赛事录入</h2>
+      <div class="grid two">
+        <label>主队 <input id="homeTeam" value="巴西" /></label>
+        <label>客队 <input id="awayTeam" value="挪威" /></label>
+        <label>阶段 <input id="stage" value="世界杯淘汰赛" /></label>
+        <label>开球时间 <input id="kickoff" value="今晚" /></label>
+        <label>球场/城市 <input id="venue" value="纽约/新泽西" /></label>
+        <label>天气 <input id="weather" value="温和，微风" /></label>
+      </div>
+
+      <h3>八维评分（-5 到 +5，正值利主队，负值利客队）</h3>
+      <div id="dimensionList" class="dimensions"></div>
+
+      <div class="actions">
+        <button id="analyzeBtn">生成分析</button>
+        <button id="saveBtn" class="secondary">保存记录</button>
+        <button id="clearBtn" class="danger">清空历史</button>
+      </div>
+    </section>
+
+    <section class="panel result">
+      <h2>② 模型输出</h2>
+      <div id="summaryCards" class="cards"></div>
+
+      <h3>推荐方向</h3>
+      <div id="recommendation" class="recommendation"></div>
+
+      <h3>自动生成购买方案</h3>
+      <div class="grid two">
+        <label>预算金额（元）<input id="budget" type="number" value="100" /></label>
+        <label>风险偏好
+          <select id="riskLevel">
+            <option value="steady">稳健</option>
+            <option value="balanced" selected>均衡</option>
+            <option value="high">高倍</option>
+          </select>
+        </label>
+      </div>
+      <button id="planBtn">生成购买方案</button>
+      <pre id="ticketPlan"></pre>
+    </section>
+
+    <section class="panel">
+      <h2>③ 赛后复盘</h2>
+      <div class="grid two">
+        <label>主队进球 <input id="homeGoals" type="number" value="2" /></label>
+        <label>客队进球 <input id="awayGoals" type="number" value="1" /></label>
+      </div>
+      <button id="reviewBtn">生成复盘</button>
+      <pre id="reviewBox"></pre>
+    </section>
+
+    <section class="panel">
+      <h2>④ 历史记录</h2>
+      <div id="historyList" class="history"></div>
+    </section>
+  </main>
+
+  <footer>
+    本工具只做公开数据建模与内容讨论，不承诺命中，不构成投注建议。
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

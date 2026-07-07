@@ -81,6 +81,10 @@ function listBackups() {
     .map(name => ({ name, file: path.join(BACKUP_DIR, name) }));
 }
 
+function isSafeBackupName(name) {
+  return /^matches-[0-9TZ\-]+\.json$/.test(String(name || ''));
+}
+
 const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return send(res, 200, { ok: true });
 
@@ -97,6 +101,29 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === '/api/backups') {
     return send(res, 200, { ok: true, backups: listBackups() });
+  }
+
+  if (req.method === 'POST' && req.url === '/api/restore') {
+    if (!safeEqual(req.headers['x-admin-token'], ADMIN_TOKEN)) {
+      return send(res, 401, { ok: false, message: '权限校验失败' });
+    }
+    try {
+      const body = await readBody(req);
+      const payload = JSON.parse(body || '{}');
+      const name = String(payload.name || '');
+      if (!isSafeBackupName(name)) return send(res, 400, { ok: false, message: '备份文件名不合法' });
+      const file = path.join(BACKUP_DIR, name);
+      if (!fs.existsSync(file)) return send(res, 404, { ok: false, message: '备份不存在' });
+      backupCurrentData();
+      const text = fs.readFileSync(file, 'utf-8');
+      const restorePayload = JSON.parse(text);
+      restorePayload.updatedAt = new Date().toISOString();
+      writeJson(DATA_FILE, restorePayload);
+      writeJson(PUBLIC_DATA_FILE, restorePayload);
+      return send(res, 200, { ok: true, message: '恢复成功，前台数据已同步', restored: name, count: restorePayload.matches?.length || 0 });
+    } catch (err) {
+      return send(res, 500, { ok: false, message: '恢复失败', detail: err.message });
+    }
   }
 
   if (req.method === 'GET' && req.url === '/api/matches') {

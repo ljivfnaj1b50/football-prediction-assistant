@@ -12,6 +12,7 @@ mkdir -p "$APP_DIR/data/backups"
 cp index.html "$WEB_DIR/index.html"
 cp styles.css "$WEB_DIR/styles.css"
 if [ -f front-v2.css ]; then cp front-v2.css "$WEB_DIR/front-v2.css"; fi
+if [ -f team-cn-map.js ]; then cp team-cn-map.js "$WEB_DIR/team-cn-map.js"; fi
 cp app.js "$WEB_DIR/app.js"
 cp model.js "$WEB_DIR/model.js"
 cp admin.html "$WEB_DIR/admin.html"

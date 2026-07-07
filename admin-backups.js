@@ -1,11 +1,14 @@
 const $ = id => document.getElementById(id);
 
 function status(text) { $('statusBox').textContent = text; }
+function token() { return $('tokenInput').value.trim(); }
 function escapeHtml(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 async function loadBackups() {
+  const t = token();
+  if (!t) return status('请先输入后台口令，再刷新备份。');
   try {
-    const res = await fetch('/api/backups', { cache: 'no-store' });
+    const res = await fetch('/api/backups', { cache: 'no-store', headers: { 'x-admin-token': t } });
     const data = await res.json();
     if (!res.ok || !data.ok) throw new Error(data.message || '读取失败');
     renderBackups(data.backups || []);
@@ -35,13 +38,13 @@ function renderBackups(rows) {
 }
 
 async function restoreBackup(name) {
-  const token = $('tokenInput').value.trim();
-  if (!token) return status('请先输入后台口令。');
+  const t = token();
+  if (!t) return status('请先输入后台口令。');
   if (!confirm(`确认恢复备份：${name}？当前数据会先自动备份。`)) return;
   try {
     const res = await fetch('/api/restore', {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-admin-token': token },
+      headers: { 'content-type': 'application/json', 'x-admin-token': t },
       body: JSON.stringify({ name })
     });
     const result = await res.json();
@@ -56,4 +59,4 @@ async function restoreBackup(name) {
 $('loadBtn').onclick = loadBackups;
 $('formBtn').onclick = () => location.href = './admin-form.html?form2';
 $('frontBtn').onclick = () => location.href = './?phase2';
-loadBackups();
+status('请输入后台口令后点击“刷新备份”。');

@@ -6,10 +6,12 @@ WEB_DIR=/var/www/jingxi-football
 
 cd "$APP_DIR"
 mkdir -p "$WEB_DIR/data"
+mkdir -p "$APP_DIR/data/history"
+mkdir -p "$APP_DIR/data/backups"
 
 cp index.html "$WEB_DIR/index.html"
 cp styles.css "$WEB_DIR/styles.css"
-cp front-v2.css "$WEB_DIR/front-v2.css"
+if [ -f front-v2.css ]; then cp front-v2.css "$WEB_DIR/front-v2.css"; fi
 cp app.js "$WEB_DIR/app.js"
 cp model.js "$WEB_DIR/model.js"
 cp admin.html "$WEB_DIR/admin.html"
@@ -26,6 +28,9 @@ cp data/matches.json "$WEB_DIR/data/matches.json"
 
 nginx -t
 systemctl restart nginx
-systemctl restart jingxi-football-api || true
+systemctl restart jingxi-football-api
 
-echo "OK_V2_SYNC_DONE"
+sleep 2
+curl -fsS "http://127.0.0.1/api/public-feed?force=1" > /tmp/jingxi-public-feed.json || true
+
+echo "OK_V3_AUTO_SYNC_DONE"

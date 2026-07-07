@@ -3,19 +3,19 @@ const $ = id => document.getElementById(id);
 function setStatus(text) {
   $('summaryBox').textContent = text;
 }
+function token() { return $('tokenInput').value.trim(); }
 
 async function loadData() {
+  const t = token();
+  if (!t) return setStatus('请先输入后台口令，再点击读取数据。');
   try {
-    const res = await fetch('/api/matches', { cache: 'no-store' });
-    if (!res.ok) throw new Error('API 未启动，尝试读取静态数据');
+    const res = await fetch('/api/matches', { cache: 'no-store', headers: { 'x-admin-token': t } });
     const data = await res.json();
+    if (!res.ok) throw new Error(data.message || '读取失败');
     $('jsonEditor').value = JSON.stringify(data, null, 2);
     renderSummary(data, '已从服务器 API 读取');
   } catch (err) {
-    const res = await fetch('./data/matches.json?ts=' + Date.now(), { cache: 'no-store' });
-    const data = await res.json();
-    $('jsonEditor').value = JSON.stringify(data, null, 2);
-    renderSummary(data, 'API 未启动，已从静态数据读取');
+    setStatus('读取失败：' + err.message);
   }
 }
 
@@ -79,19 +79,19 @@ function validateEditor() {
 
 async function saveData() {
   try {
-    const token = $('tokenInput').value.trim();
-    if (!token) return setStatus('请先输入后台口令。');
+    const t = token();
+    if (!t) return setStatus('请先输入后台口令。');
     const data = readEditor();
     const err = validate(data);
     if (err) return setStatus('校验失败：' + err);
     const res = await fetch('/api/matches', {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-admin-token': token },
+      headers: { 'content-type': 'application/json', 'x-admin-token': t },
       body: JSON.stringify(data)
     });
     const result = await res.json();
     if (!res.ok || !result.ok) return setStatus('保存失败：' + (result.message || res.status));
-    setStatus(`保存成功\n更新时间：${result.updatedAt}\n赛事数量：${result.count}\n请回到前台点击“自动刷新数据”。`);
+    setStatus(`保存成功\n更新时间：${result.updatedAt}\n赛事数量：${result.count}\n前台数据已同步，请回到前台点击“自动刷新数据”。`);
   } catch (err) {
     setStatus('保存异常：' + err.message);
   }
@@ -101,5 +101,5 @@ $('loadBtn').onclick = loadData;
 $('validateBtn').onclick = validateEditor;
 $('formatBtn').onclick = formatEditor;
 $('saveBtn').onclick = saveData;
-$('backBtn').onclick = () => location.href = './?phase1';
-loadData();
+$('backBtn').onclick = () => location.href = './?phase2';
+setStatus('请输入后台口令后点击“读取数据”。');

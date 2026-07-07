@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鲸喜足球 · 数据质检</title>
+  <link rel="stylesheet" href="./styles.css?v=quality1" />
+  <style>
+    .quality-layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 18px; margin-top: 18px; align-items: start; }
+    .quality-card { background: rgba(3,16,24,.52); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+    label { display: grid; gap: 8px; color: var(--muted); font-weight: 800; margin-bottom: 12px; }
+    input { width: 100%; border: 1px solid var(--line); background: rgba(3,16,24,.88); color: var(--text); border-radius: 12px; padding: 11px 12px; outline: none; }
+    .status { white-space: pre-wrap; line-height: 1.7; color: var(--muted); }
+    .report-item { border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-bottom: 12px; background: rgba(255,255,255,.04); }
+    .report-title { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:10px; }
+    .score { padding: 6px 10px; border-radius: 99px; font-weight: 900; background: rgba(55,214,122,.14); color: #8ff0b2; }
+    .score.warn { background: rgba(255,209,102,.14); color: var(--warn); }
+    .score.bad { background: rgba(255,101,119,.16); color: var(--danger); }
+    .check-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:8px; }
+    .check { color: var(--muted); padding: 8px 10px; border-radius: 10px; background: rgba(3,16,24,.45); }
+    .check.ok { color:#8ff0b2; }
+    .check.bad { color:var(--danger); }
+    @media (max-width: 900px) { .quality-layout, .check-grid { grid-template-columns: 1fr; } .report-title { align-items:flex-start; flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">DATA QUALITY</div>
+        <h1>数据质检</h1>
+        <p>检查每场比赛的数据完整度，避免模型因为缺字段而输出偏差。</p>
+      </div>
+      <div class="hero-actions">
+        <button id="loadBtn">开始质检</button>
+        <button id="formBtn" class="ghost">表单后台</button>
+        <button id="consoleBtn" class="ghost">控制台</button>
+      </div>
+    </header>
+
+    <section class="quality-layout">
+      <aside class="panel">
+        <h2>质检设置</h2>
+        <div class="quality-card">
+          <label>后台口令
+            <input id="tokenInput" type="password" placeholder="输入内部维护口令" />
+          </label>
+          <p class="status">输入口令后点击“开始质检”。</p>
+        </div>
+        <h2 style="margin-top:16px;">总览</h2>
+        <div id="summaryBox" class="quality-card status">等待质检...</div>
+      </aside>
+      <main class="panel">
+        <h2>质检报告</h2>
+        <div id="reportBox"></div>
+      </main>
+    </section>
+  </div>
+  <script type="module" src="./admin-quality.js?v=quality1"></script>
+</body>
+</html>

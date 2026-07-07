@@ -1,9 +1,11 @@
 import { analyzeMatch, rankAnalyses } from './model.js';
 
 const $ = id => document.getElementById(id);
+const AUTO_REFRESH_MS = 5 * 60 * 1000;
 let rows = [];
 let currentId = '';
 let meta = { updatedAt: new Date().toISOString(), mode: 'loading', sources: [] };
+let loading = false;
 
 function injectV2Style() {
   if (document.querySelector('link[href*="front-v2.css"]')) return;
@@ -13,20 +15,26 @@ function injectV2Style() {
   document.head.appendChild(link);
 }
 
-async function load() {
+async function load(force = false) {
+  if (loading) return;
+  loading = true;
   injectV2Style();
   try {
-    let res = await fetch('/api/public-feed?ts=' + Date.now(), { cache: 'no-store' });
+    const query = force ? '?force=1&ts=' : '?ts=';
+    let res = await fetch('/api/public-feed' + query + Date.now(), { cache: 'no-store' });
     if (!res.ok) res = await fetch('./data/matches.json?ts=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error('data not found');
     const payload = await res.json();
     meta = payload;
     rows = (payload.matches || []).map(analyzeMatch);
+    if (!rows.find(x => x.id === currentId)) currentId = rows[0]?.id || '';
   } catch (err) {
     meta = { updatedAt: new Date().toISOString(), mode: 'error', sources: [{ name: '数据源', status: 'error', detail: '读取失败：' + err.message }] };
     rows = [];
+    currentId = '';
+  } finally {
+    loading = false;
   }
-  currentId = rows[0]?.id || '';
   renderSources();
   render();
 }
@@ -34,9 +42,10 @@ async function load() {
 function renderSources() {
   const sources = meta.sources || [];
   $('sourceStatus').innerHTML = sources.map(s => `<div class="status-card"><strong>${safe(s.name)}</strong><p>${safe(s.detail || '')}</p><span class="status-pill status-${safe(s.status || 'demo')}">${safe(s.status || 'V2')}</span></div>`).join('');
-  const liveText = meta.live?.enabled ? `实时接口：已开启｜${safe(meta.live.provider || '')}` : `实时接口：待配置｜${safe(meta.live?.reason || '当前使用内部数据')}`;
+  const sourceName = meta.live?.noKeySource ? '无Key公开数据源' : (meta.live?.enabled ? '实时接口' : '内部缓存');
+  const liveText = `${sourceName}｜自动刷新：已开启｜${safe(meta.mode || '-')}`;
   setText('liveMode', liveText);
-  setText('lastUpdated', `最近更新：${fmt(meta.updatedAt)}｜模式：${safe(meta.mode || 'server')}｜赛事 ${rows.length} 场`);
+  setText('lastUpdated', `最近更新：${fmt(meta.updatedAt)}｜赛事 ${rows.length} 场｜下次自动刷新约 ${Math.round(AUTO_REFRESH_MS / 60000)} 分钟`);
   setText('matchCount', rows.length);
   setText('lowRiskCount', rows.filter(x => x.risk.key === 'low').length);
   setText('avgConfidence', rows.length ? Math.round(rows.reduce((s, x) => s + x.confidence, 0) / rows.length) + '%' : '0%');
@@ -74,7 +83,7 @@ function card(x) {
 }
 
 function marketCard(title, rows, primaryKey) {
-  return `<div class="market-card ${primaryKey ? 'primary' : ''}"><h3>${safe(title)}</h3>${rows.map((r, i) => `<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px"><strong>${safe(r.label)}</strong><span>${r.p}%</span></div><div class="progress"><span style="width:${clamp(r.p,0,100)}%"></span></div></div>`).join('')}</div>`;
+  return `<div class="market-card ${primaryKey ? 'primary' : ''}"><h3>${safe(title)}</h3>${rows.map((r) => `<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px"><strong>${safe(r.label)}</strong><span>${r.p}%</span></div><div class="progress"><span style="width:${clamp(r.p,0,100)}%"></span></div></div>`).join('')}</div>`;
 }
 
 function playerCards(team) {
@@ -145,8 +154,10 @@ function fmt(v) { const d = new Date(v); return Number.isFinite(d.getTime()) ? d
 function safe(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function clamp(n,min,max){ return Math.max(min, Math.min(max, Number(n)||0)); }
 
-$('refreshBtn').onclick = load;
-$('demoBtn').onclick = load;
+$('refreshBtn').onclick = () => load(true);
+$('demoBtn').onclick = () => load(false);
 $('riskFilter').onchange = render;
 $('sortBy').onchange = render;
-load();
+load(true);
+setInterval(() => load(true), AUTO_REFRESH_MS);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(false); });

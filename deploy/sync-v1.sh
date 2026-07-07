@@ -13,6 +13,7 @@ cp index.html "$WEB_DIR/index.html"
 if [ -f today.css ]; then cp today.css "$WEB_DIR/today.css"; fi
 if [ -f today.js ]; then cp today.js "$WEB_DIR/today.js"; fi
 if [ -f team-cn-map.js ]; then cp team-cn-map.js "$WEB_DIR/team-cn-map.js"; fi
+if [ -f sporttery-source.js ]; then cp sporttery-source.js "$APP_DIR/sporttery-source.js"; fi
 cp styles.css "$WEB_DIR/styles.css"
 if [ -f front-v2.css ]; then cp front-v2.css "$WEB_DIR/front-v2.css"; fi
 cp app.js "$WEB_DIR/app.js"
@@ -36,4 +37,4 @@ systemctl restart jingxi-football-api
 sleep 2
 curl -fsS "http://127.0.0.1/api/public-feed?force=1" > /tmp/jingxi-public-feed.json || true
 
-echo "OK_TODAY_ONE_GPT_SYNC_DONE"
+echo "OK_OFFICIAL_SOURCE_SYNC_DONE"

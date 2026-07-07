@@ -43,6 +43,16 @@ function safeEqual(a, b) {
   return crypto.timingSafeEqual(aa, bb);
 }
 
+function hasAdmin(req) {
+  return safeEqual(req.headers['x-admin-token'], ADMIN_TOKEN);
+}
+
+function requireAdmin(req, res) {
+  if (hasAdmin(req)) return true;
+  send(res, 401, { ok: false, message: '权限校验失败' });
+  return false;
+}
+
 function validatePayload(payload) {
   if (!payload || typeof payload !== 'object') return '数据必须是对象';
   if (!Array.isArray(payload.matches)) return 'matches 必须是数组';
@@ -93,20 +103,20 @@ const server = http.createServer(async (req, res) => {
       ok: true,
       service: 'jingxi-football-api',
       time: new Date().toISOString(),
-      dataFile: DATA_FILE,
       publicDataFile: PUBLIC_DATA_FILE,
-      backups: listBackups().length
+      secured: true,
+      backups: hasAdmin(req) ? listBackups().length : undefined,
+      dataFile: hasAdmin(req) ? DATA_FILE : undefined
     });
   }
 
   if (req.method === 'GET' && req.url === '/api/backups') {
+    if (!requireAdmin(req, res)) return;
     return send(res, 200, { ok: true, backups: listBackups() });
   }
 
   if (req.method === 'POST' && req.url === '/api/restore') {
-    if (!safeEqual(req.headers['x-admin-token'], ADMIN_TOKEN)) {
-      return send(res, 401, { ok: false, message: '权限校验失败' });
-    }
+    if (!requireAdmin(req, res)) return;
     try {
       const body = await readBody(req);
       const payload = JSON.parse(body || '{}');
@@ -127,6 +137,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/api/matches') {
+    if (!requireAdmin(req, res)) return;
     try {
       const text = fs.readFileSync(DATA_FILE, 'utf-8');
       return send(res, 200, JSON.parse(text));
@@ -136,9 +147,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'POST' && req.url === '/api/matches') {
-    if (!safeEqual(req.headers['x-admin-token'], ADMIN_TOKEN)) {
-      return send(res, 401, { ok: false, message: '权限校验失败' });
-    }
+    if (!requireAdmin(req, res)) return;
     try {
       const body = await readBody(req);
       const payload = JSON.parse(body);

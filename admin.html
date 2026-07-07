@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鲸喜足球 · 内部数据维护</title>
+  <link rel="stylesheet" href="./styles.css?v=admin1" />
+  <style>
+    .admin-layout { display: grid; grid-template-columns: 360px 1fr; gap: 18px; margin-top: 18px; }
+    .admin-box { background: rgba(3,16,24,.52); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+    .admin-box label { display: grid; gap: 8px; color: var(--muted); font-weight: 700; margin-bottom: 12px; }
+    .admin-box input, .admin-box textarea { width: 100%; border: 1px solid var(--line); background: rgba(3,16,24,.85); color: var(--text); border-radius: 12px; padding: 11px 12px; outline: none; }
+    textarea { min-height: 560px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; line-height: 1.55; }
+    .admin-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .admin-status { white-space: pre-wrap; line-height: 1.7; color: var(--muted); }
+    .quick-card { padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.04); margin-bottom: 10px; }
+    @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">INTERNAL ADMIN</div>
+        <h1>内部数据维护</h1>
+        <p>读取、校验、保存服务器赛事数据。老板只看结果，维护入口服务内部使用。</p>
+      </div>
+      <div class="hero-actions">
+        <button id="loadBtn">读取数据</button>
+        <button id="backBtn" class="ghost">返回模型</button>
+      </div>
+    </header>
+
+    <section class="admin-layout">
+      <aside class="panel">
+        <h2>操作区</h2>
+        <div class="admin-box">
+          <label>后台口令
+            <input id="tokenInput" type="password" placeholder="输入内部维护口令" />
+          </label>
+          <div class="admin-actions">
+            <button id="validateBtn">校验数据</button>
+            <button id="saveBtn">保存到服务器</button>
+            <button id="formatBtn" class="ghost">格式化</button>
+          </div>
+        </div>
+
+        <h2 style="margin-top:16px;">数据概览</h2>
+        <div id="summaryBox" class="admin-status admin-box">等待读取数据...</div>
+
+        <h2 style="margin-top:16px;">快速说明</h2>
+        <div class="quick-card">1. 点击“读取数据”。</div>
+        <div class="quick-card">2. 修改右侧 JSON。</div>
+        <div class="quick-card">3. 点“校验数据”。</div>
+        <div class="quick-card">4. 输入口令，点“保存到服务器”。</div>
+      </aside>
+
+      <main class="panel">
+        <h2>赛事数据 JSON</h2>
+        <p>先用 JSON 维护，后续再升级成表单式后台。</p>
+        <textarea id="jsonEditor" spellcheck="false"></textarea>
+      </main>
+    </section>
+  </div>
+  <script type="module" src="./admin.js?v=admin1"></script>
+</body>
+</html>

@@ -5,15 +5,25 @@ let rows = [];
 let currentId = '';
 let meta = { updatedAt: new Date().toISOString(), mode: 'loading', sources: [] };
 
+function injectV2Style() {
+  if (document.querySelector('link[href*="front-v2.css"]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './front-v2.css?v=v2-pro';
+  document.head.appendChild(link);
+}
+
 async function load() {
+  injectV2Style();
   try {
-    const res = await fetch('./data/matches.json?ts=' + Date.now(), { cache: 'no-store' });
+    let res = await fetch('/api/public-feed?ts=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) res = await fetch('./data/matches.json?ts=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error('data not found');
     const payload = await res.json();
     meta = payload;
     rows = (payload.matches || []).map(analyzeMatch);
   } catch (err) {
-    meta = { updatedAt: new Date().toISOString(), mode: 'error', sources: [{ name: '数据文件', status: 'error', detail: '读取失败，请检查 data/matches.json' }] };
+    meta = { updatedAt: new Date().toISOString(), mode: 'error', sources: [{ name: '数据源', status: 'error', detail: '读取失败：' + err.message }] };
     rows = [];
   }
   currentId = rows[0]?.id || '';
@@ -24,7 +34,13 @@ async function load() {
 function renderSources() {
   const sources = meta.sources || [];
   $('sourceStatus').innerHTML = sources.map(s => `<div class="status-card"><strong>${safe(s.name)}</strong><p>${safe(s.detail || '')}</p><span class="status-pill status-${safe(s.status || 'demo')}">${safe(s.status || 'V2')}</span></div>`).join('');
-  $('lastUpdated').textContent = `最近更新：${fmt(meta.updatedAt)}｜模式：${safe(meta.mode || 'server')}｜赛事 ${rows.length} 场`;
+  const liveText = meta.live?.enabled ? `实时接口：已开启｜${safe(meta.live.provider || '')}` : `实时接口：待配置｜${safe(meta.live?.reason || '当前使用内部数据')}`;
+  setText('liveMode', liveText);
+  setText('lastUpdated', `最近更新：${fmt(meta.updatedAt)}｜模式：${safe(meta.mode || 'server')}｜赛事 ${rows.length} 场`);
+  setText('matchCount', rows.length);
+  setText('lowRiskCount', rows.filter(x => x.risk.key === 'low').length);
+  setText('avgConfidence', rows.length ? Math.round(rows.reduce((s, x) => s + x.confidence, 0) / rows.length) + '%' : '0%');
+  setText('listHint', `${rows.length} 场`);
 }
 
 function render() {
@@ -36,26 +52,98 @@ function render() {
   show(rows.find(x => x.id === currentId) || visible[0]);
 }
 
+function teamLogo(team) {
+  const src = team.logo || team.crest || team.flag || '';
+  if (src) return `<img class="logo" src="${safe(src)}" alt="${safe(team.name)}" onerror="this.outerHTML='<div class=&quot;logo&quot;>${initial(team.name)}</div>'">`;
+  return `<div class="logo">${initial(team.name)}</div>`;
+}
+function flag(team) { return team.flag ? `<img class="flag" src="${safe(team.flag)}" alt="flag">` : ''; }
+function initial(name='') { return safe(String(name).slice(0,1) || '队'); }
+
 function card(x) {
-  return `<article class="match-card ${x.id===currentId?'active':''}" data-id="${x.id}"><div class="match-card-title"><div class="teams">${safe(x.match.home.name)}<br>vs ${safe(x.match.away.name)}</div><span class="badge ${x.risk.key}">${safe(x.risk.label)}</span></div><div class="meta">${safe(x.match.competition)}｜${fmt(x.match.kickoff)}<br>信心 ${x.confidence}%｜${safe(x.direction.label)}</div></article>`;
+  const m = x.match;
+  return `<article class="match-card ${x.id===currentId?'active':''}" data-id="${safe(x.id)}">
+    <div class="card-teams">
+      <div class="team-mini">${teamLogo(m.home)}<div><strong>${safe(m.home.name)}</strong><br>${flag(m.home)}</div></div>
+      <div class="vs">VS</div>
+      <div class="team-mini away">${teamLogo(m.away)}<div><strong>${safe(m.away.name)}</strong><br>${flag(m.away)}</div></div>
+    </div>
+    <div class="card-meta"><span>${safe(m.competition)}｜${fmt(m.kickoff)}</span><span class="badge ${x.risk.key}">${safe(x.risk.label)}</span></div>
+    <div class="small">${safe(x.scheme.text)}｜信心 ${x.confidence}%</div>
+  </article>`;
+}
+
+function marketCard(title, rows, primaryKey) {
+  return `<div class="market-card ${primaryKey ? 'primary' : ''}"><h3>${safe(title)}</h3>${rows.map((r, i) => `<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px"><strong>${safe(r.label)}</strong><span>${r.p}%</span></div><div class="progress"><span style="width:${clamp(r.p,0,100)}%"></span></div></div>`).join('')}</div>`;
+}
+
+function playerCards(team) {
+  const players = team.keyPlayers || team.players || [];
+  const list = players.length ? players.slice(0, 4) : [
+    { name: '核心球员', role: '待接口补充' },
+    { name: '关键替补', role: '待接口补充' }
+  ];
+  return list.map(p => `<div class="player-card">${p.photo ? `<img class="avatar" src="${safe(p.photo)}" onerror="this.outerHTML='<div class=&quot;avatar&quot;>${initial(p.name)}</div>'">` : `<div class="avatar">${initial(p.name)}</div>`}<div><strong>${safe(p.name)}</strong><p>${safe(p.role || p.position || '')}</p></div></div>`).join('');
 }
 
 function show(x) {
   if (!x) {
-    $('matchDetail').innerHTML = '<div class="empty-state"><h2>暂无赛事数据</h2><p>请检查服务器数据文件。</p></div>';
+    $('matchDetail').innerHTML = '<div class="empty-state panel"><h2>暂无赛事数据</h2><p>请检查服务器数据源。</p></div>';
     return;
   }
   const m = x.match;
-  $('matchDetail').innerHTML = `<div class="detail-header"><div><div class="detail-title">${safe(m.home.name)} vs ${safe(m.away.name)}</div><div class="kickoff">${safe(m.stage)}｜${fmt(m.kickoff)}｜${safe(m.venue.name)}</div></div><span class="badge ${x.risk.key}">${safe(x.risk.label)} · 信心 ${x.confidence}%</span></div>
-  <div class="prob-grid"><div class="prob-card"><h3>主队</h3><div class="num">${x.probabilities.home}%</div><div class="progress"><span style="width:${x.probabilities.home}%"></span></div></div><div class="prob-card"><h3>平局</h3><div class="num">${x.probabilities.draw}%</div><div class="progress"><span style="width:${x.probabilities.draw}%"></span></div></div><div class="prob-card"><h3>客队</h3><div class="num">${x.probabilities.away}%</div><div class="progress"><span style="width:${x.probabilities.away}%"></span></div></div></div>
-  <div class="edge-box"><strong>综合结论：</strong>${safe(x.direction.label)}｜高概率区间：${x.goals.main.join(' / ')}｜补充观察：${x.goals.backup.join(' / ')}<br><span class="small">${safe(x.risk.text)}</span></div>
-  <div class="metric-grid"><div class="metric-card"><h3>预期进球</h3><div class="num">${x.xg.home} : ${x.xg.away}</div><p>近期状态、排名、人员、疲劳、环境综合修正。</p></div><div class="metric-card"><h3>环境折损</h3><div class="num">${x.factors.environment}%</div><p>温度、湿度、风速、降雨、海拔。</p></div><div class="metric-card"><h3>不确定性</h3><div class="num">${x.factors.uncertainty}%</div><p>数据缺失和信号冲突越多，数值越高。</p></div></div>
-  <div class="factor-grid"><div class="factor-card"><h3>基本面</h3><ul><li>主队排名：${m.home.rank}</li><li>客队排名：${m.away.rank}</li></ul></div><div class="factor-card"><h3>人员状态</h3><ul><li>主队记录 ${(m.home.injuries||[]).length}，停赛 ${(m.home.suspensions||[]).length}</li><li>客队记录 ${(m.away.injuries||[]).length}，停赛 ${(m.away.suspensions||[]).length}</li></ul></div><div class="factor-card"><h3>天气/海拔</h3><ul><li>${m.weather.tempC}℃｜湿度 ${m.weather.humidity}%｜风速 ${m.weather.windKph}km/h</li><li>海拔 ${m.venue.altitudeM}m</li></ul></div><div class="factor-card"><h3>模型提醒</h3><ul>${x.explanation.map(v=>`<li>${safe(v)}</li>`).join('')}</ul></div></div>
-  <h2>比分分布</h2><div class="score-grid">${x.scores.map(s=>`<div class="score-chip"><strong>${s.score}</strong><span>${s.p}%</span></div>`).join('')}</div>`;
+  const winRows = x.markets.winDrawLose;
+  const doubleRows = x.markets.doubleChance;
+  const goalRows = x.markets.totalGoals.bands;
+  const exactGoalRows = x.markets.totalGoals.exact.slice(0, 7).map(v => ({ label: v.label + '球', p: v.p }));
+
+  $('matchDetail').innerHTML = `<div class="detail-shell">
+    <section class="match-hero">
+      <div class="match-hero-top">
+        <div><div class="eyebrow">MATCH ANALYSIS</div><h2>${safe(m.competition)}｜${safe(m.stage || '')}</h2><p class="kickoff">${fmt(m.kickoff)}｜${safe(m.venue?.name || '')}｜${safe(m.venue?.city || '')}</p></div>
+        <span class="badge ${x.risk.key}">${safe(x.risk.label)} · 信心 ${x.confidence}%</span>
+      </div>
+      <div class="big-teams">
+        <div class="big-team">${teamLogo(m.home)}<strong>${safe(m.home.name)}</strong>${flag(m.home)}</div>
+        <div class="vs">VS</div>
+        <div class="big-team">${teamLogo(m.away)}<strong>${safe(m.away.name)}</strong>${flag(m.away)}</div>
+      </div>
+    </section>
+
+    <section class="scheme-box">
+      <h2>最终综合方案：${safe(x.scheme.level)}</h2>
+      <p><strong>${safe(x.scheme.primary)}</strong></p>
+      <p>${safe(x.scheme.backup)}</p>
+      <p class="small">${safe(x.risk.text)}</p>
+    </section>
+
+    <section class="market-grid">
+      ${marketCard('胜平负概率', winRows, true)}
+      ${marketCard('双选防线', doubleRows, false)}
+      ${marketCard('总进球区间', goalRows, false)}
+    </section>
+
+    <section class="market-grid">
+      ${marketCard('精确总进球', exactGoalRows, false)}
+      <div class="market-card"><h3>大小球倾向</h3><div class="num">${x.markets.totalGoals.over25}%</div><p>大于2.5球概率</p><div class="progress"><span style="width:${x.markets.totalGoals.over25}%"></span></div><p class="small">小于2.5球：${x.markets.totalGoals.under25}%｜小于3.5球：${x.markets.totalGoals.under35}%</p></div>
+      <div class="market-card"><h3>预期进球</h3><div class="num">${x.xg.home} : ${x.xg.away}</div><p>综合近期状态、排名、人员、疲劳、环境修正。</p></div>
+    </section>
+
+    <section class="two-col">
+      <div class="panel"><h2>详细分析原因</h2><ul class="reason-list">${x.explanation.map(v=>`<li>${safe(v)}</li>`).join('')}</ul></div>
+      <div class="panel"><h2>关键因子</h2><div class="factor-grid"><div class="factor-card"><h3>环境</h3><div class="num">${x.factors.environment}%</div></div><div class="factor-card"><h3>主队折损</h3><div class="num">${x.factors.homeDrag}%</div></div><div class="factor-card"><h3>客队折损</h3><div class="num">${x.factors.awayDrag}%</div></div><div class="factor-card"><h3>不确定性</h3><div class="num">${x.factors.uncertainty}%</div></div></div></div>
+    </section>
+
+    <section class="panel"><h2>队员照片 / 关键球员</h2><div class="player-grid">${playerCards(m.home)}${playerCards(m.away)}</div><p class="small">球员照片需要第三方数据源返回 photo 字段；未接入时显示占位头像。</p></section>
+
+    <section class="panel"><h2>比分分布</h2><div class="score-grid">${x.scores.map(s=>`<div class="score-chip"><strong>${s.score}</strong><span>${s.p}%</span></div>`).join('')}</div></section>
+  </div>`;
 }
 
+function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
 function fmt(v) { const d = new Date(v); return Number.isFinite(d.getTime()) ? d.toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : String(v || ''); }
 function safe(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function clamp(n,min,max){ return Math.max(min, Math.min(max, Number(n)||0)); }
 
 $('refreshBtn').onclick = load;
 $('demoBtn').onclick = load;

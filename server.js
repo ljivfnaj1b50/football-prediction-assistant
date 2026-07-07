@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'jingxi-admin-2026';
 const DATA_FILE = path.join(__dirname, 'data', 'matches.json');
+const BACKUP_DIR = path.join(__dirname, 'data', 'backups');
 const PUBLIC_DATA_FILE = process.env.PUBLIC_DATA_FILE || '/var/www/jingxi-football/data/matches.json';
 
 function send(res, code, data) {
@@ -61,6 +62,25 @@ function writeJson(file, payload) {
   fs.writeFileSync(file, JSON.stringify(payload, null, 2), 'utf-8');
 }
 
+function backupCurrentData() {
+  if (!fs.existsSync(DATA_FILE)) return null;
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupFile = path.join(BACKUP_DIR, `matches-${stamp}.json`);
+  fs.copyFileSync(DATA_FILE, backupFile);
+  return backupFile;
+}
+
+function listBackups() {
+  if (!fs.existsSync(BACKUP_DIR)) return [];
+  return fs.readdirSync(BACKUP_DIR)
+    .filter(name => name.endsWith('.json'))
+    .sort()
+    .reverse()
+    .slice(0, 30)
+    .map(name => ({ name, file: path.join(BACKUP_DIR, name) }));
+}
+
 const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return send(res, 200, { ok: true });
 
@@ -70,8 +90,13 @@ const server = http.createServer(async (req, res) => {
       service: 'jingxi-football-api',
       time: new Date().toISOString(),
       dataFile: DATA_FILE,
-      publicDataFile: PUBLIC_DATA_FILE
+      publicDataFile: PUBLIC_DATA_FILE,
+      backups: listBackups().length
     });
+  }
+
+  if (req.method === 'GET' && req.url === '/api/backups') {
+    return send(res, 200, { ok: true, backups: listBackups() });
   }
 
   if (req.method === 'GET' && req.url === '/api/matches') {
@@ -92,15 +117,17 @@ const server = http.createServer(async (req, res) => {
       const payload = JSON.parse(body);
       const err = validatePayload(payload);
       if (err) return send(res, 400, { ok: false, message: err });
+      const backupFile = backupCurrentData();
       payload.updatedAt = new Date().toISOString();
       payload.mode = payload.mode || 'internal-data-file';
       writeJson(DATA_FILE, payload);
       writeJson(PUBLIC_DATA_FILE, payload);
       return send(res, 200, {
         ok: true,
-        message: '保存成功，前台数据已同步',
+        message: '保存成功，前台数据已同步，旧数据已备份',
         updatedAt: payload.updatedAt,
         count: payload.matches.length,
+        backupFile,
         dataFile: DATA_FILE,
         publicDataFile: PUBLIC_DATA_FILE
       });

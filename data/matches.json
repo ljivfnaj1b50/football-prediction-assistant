@@ -1,11 +1,11 @@
 {
   "updatedAt": "2026-07-06T14:35:00+08:00",
-  "mode": "internal-data-file",
+  "mode": "internal-data-file-v2",
   "sources": [
-    { "name": "服务器数据文件", "status": "ok", "detail": "页面已从 data/matches.json 读取赛事" },
+    { "name": "服务器数据文件", "status": "ok", "detail": "前台优先读取实时接口，未配置接口时读取本文件" },
     { "name": "近期状态", "status": "ok", "detail": "近场战绩由数据文件输入，模型自动计算" },
     { "name": "伤停停赛", "status": "ok", "detail": "支持球员影响值、主力/轮换角色" },
-    { "name": "天气海拔", "status": "ok", "detail": "支持温度、湿度、风速、降雨、海拔" }
+    { "name": "视觉素材", "status": "ok", "detail": "支持队徽、国旗、球员照片字段" }
   ],
   "matches": [
     {
@@ -16,36 +16,20 @@
       "neutral": false,
       "venue": { "name": "阿兹特克球场", "city": "Mexico City", "altitudeM": 2240 },
       "home": {
-        "name": "墨西哥",
-        "rank": 15,
-        "lastPlayedAt": "2026-07-02T04:00:00+08:00",
-        "travelKm": 120,
-        "form": [
-          { "result": "W", "gf": 2, "ga": 0 },
-          { "result": "D", "gf": 1, "ga": 1 },
-          { "result": "W", "gf": 3, "ga": 1 },
-          { "result": "L", "gf": 0, "ga": 1 },
-          { "result": "W", "gf": 2, "ga": 1 }
-        ],
-        "injuries": [{ "name": "边路主力", "role": "starter", "impact": 0.05 }],
-        "suspensions": [],
-        "publicSentiment": { "score": 0.12, "reliability": 0.35 }
+        "name": "墨西哥", "rank": 15, "logo": "https://flagcdn.com/w160/mx.png", "flag": "https://flagcdn.com/w80/mx.png",
+        "lastPlayedAt": "2026-07-02T04:00:00+08:00", "travelKm": 120,
+        "form": [{ "result": "W", "gf": 2, "ga": 0 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 3, "ga": 1 },{ "result": "L", "gf": 0, "ga": 1 },{ "result": "W", "gf": 2, "ga": 1 }],
+        "injuries": [{ "name": "边路主力", "role": "starter", "impact": 0.05 }], "suspensions": [],
+        "publicSentiment": { "score": 0.12, "reliability": 0.35 },
+        "keyPlayers": [{ "name": "核心前锋", "role": "进攻核心", "photo": "" },{ "name": "中场组织者", "role": "节奏控制", "photo": "" }]
       },
       "away": {
-        "name": "南非",
-        "rank": 58,
-        "lastPlayedAt": "2026-07-03T04:00:00+08:00",
-        "travelKm": 4100,
-        "form": [
-          { "result": "D", "gf": 1, "ga": 1 },
-          { "result": "W", "gf": 1, "ga": 0 },
-          { "result": "L", "gf": 0, "ga": 2 },
-          { "result": "D", "gf": 0, "ga": 0 },
-          { "result": "L", "gf": 1, "ga": 3 }
-        ],
-        "injuries": [],
-        "suspensions": [{ "name": "中卫", "role": "starter", "impact": 0.07 }],
-        "publicSentiment": { "score": -0.08, "reliability": 0.3 }
+        "name": "南非", "rank": 58, "logo": "https://flagcdn.com/w160/za.png", "flag": "https://flagcdn.com/w80/za.png",
+        "lastPlayedAt": "2026-07-03T04:00:00+08:00", "travelKm": 4100,
+        "form": [{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 1, "ga": 0 },{ "result": "L", "gf": 0, "ga": 2 },{ "result": "D", "gf": 0, "ga": 0 },{ "result": "L", "gf": 1, "ga": 3 }],
+        "injuries": [], "suspensions": [{ "name": "中卫", "role": "starter", "impact": 0.07 }],
+        "publicSentiment": { "score": -0.08, "reliability": 0.3 },
+        "keyPlayers": [{ "name": "防线核心", "role": "后防支点", "photo": "" },{ "name": "速度边锋", "role": "反击点", "photo": "" }]
       },
       "weather": { "tempC": 22, "humidity": 45, "windKph": 11, "rainMm": 0 },
       "tactical": { "tempo": -0.3, "press": 0.2 }
@@ -58,81 +42,49 @@
       "neutral": true,
       "venue": { "name": "BMO Field", "city": "Toronto", "altitudeM": 76 },
       "home": {
-        "name": "韩国",
-        "rank": 23,
-        "lastPlayedAt": "2026-07-04T02:30:00+08:00",
-        "travelKm": 3200,
-        "form": [
-          { "result": "W", "gf": 2, "ga": 1 },
-          { "result": "W", "gf": 3, "ga": 0 },
-          { "result": "D", "gf": 1, "ga": 1 },
-          { "result": "L", "gf": 0, "ga": 1 },
-          { "result": "W", "gf": 2, "ga": 0 }
-        ],
-        "injuries": [{ "name": "前场轮换", "role": "rotation", "impact": 0.03 }],
-        "suspensions": [],
-        "publicSentiment": { "score": 0.05, "reliability": 0.25 }
+        "name": "韩国", "rank": 23, "logo": "https://flagcdn.com/w160/kr.png", "flag": "https://flagcdn.com/w80/kr.png",
+        "lastPlayedAt": "2026-07-04T02:30:00+08:00", "travelKm": 3200,
+        "form": [{ "result": "W", "gf": 2, "ga": 1 },{ "result": "W", "gf": 3, "ga": 0 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "L", "gf": 0, "ga": 1 },{ "result": "W", "gf": 2, "ga": 0 }],
+        "injuries": [{ "name": "前场轮换", "role": "rotation", "impact": 0.03 }], "suspensions": [],
+        "publicSentiment": { "score": 0.05, "reliability": 0.25 },
+        "keyPlayers": [{ "name": "亚洲核心", "role": "终结点", "photo": "" },{ "name": "中场推进", "role": "转换核心", "photo": "" }]
       },
       "away": {
-        "name": "捷克",
-        "rank": 35,
-        "lastPlayedAt": "2026-07-01T03:00:00+08:00",
-        "travelKm": 1100,
-        "form": [
-          { "result": "D", "gf": 1, "ga": 1 },
-          { "result": "L", "gf": 0, "ga": 1 },
-          { "result": "W", "gf": 2, "ga": 0 },
-          { "result": "W", "gf": 3, "ga": 1 },
-          { "result": "D", "gf": 1, "ga": 1 }
-        ],
-        "injuries": [],
-        "suspensions": [],
-        "publicSentiment": { "score": 0.02, "reliability": 0.2 }
+        "name": "捷克", "rank": 35, "logo": "https://flagcdn.com/w160/cz.png", "flag": "https://flagcdn.com/w80/cz.png",
+        "lastPlayedAt": "2026-07-01T03:00:00+08:00", "travelKm": 1100,
+        "form": [{ "result": "D", "gf": 1, "ga": 1 },{ "result": "L", "gf": 0, "ga": 2 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "D", "gf": 0, "ga": 0 },{ "result": "W", "gf": 1, "ga": 0 }],
+        "injuries": [], "suspensions": [],
+        "publicSentiment": { "score": 0.02, "reliability": 0.2 },
+        "keyPlayers": [{ "name": "高点中锋", "role": "禁区支点", "photo": "" },{ "name": "后腰屏障", "role": "防守核心", "photo": "" }]
       },
-      "weather": { "tempC": 18, "humidity": 64, "windKph": 19, "rainMm": 1.2 },
+      "weather": { "tempC": 19, "humidity": 60, "windKph": 10, "rainMm": 0 },
       "tactical": { "tempo": 0.2, "press": 0.1 }
     },
     {
       "id": "internal-003",
       "competition": "国际足球",
       "stage": "小组赛",
-      "kickoff": "2026-07-07T10:00:00+08:00",
+      "kickoff": "2026-07-07T09:45:00+08:00",
       "neutral": false,
       "venue": { "name": "BC Place", "city": "Vancouver", "altitudeM": 2 },
       "home": {
-        "name": "加拿大",
-        "rank": 31,
-        "lastPlayedAt": "2026-07-03T09:00:00+08:00",
-        "travelKm": 300,
-        "form": [
-          { "result": "W", "gf": 2, "ga": 0 },
-          { "result": "L", "gf": 1, "ga": 2 },
-          { "result": "D", "gf": 1, "ga": 1 },
-          { "result": "W", "gf": 2, "ga": 1 },
-          { "result": "W", "gf": 3, "ga": 2 }
-        ],
-        "injuries": [],
-        "suspensions": [],
-        "publicSentiment": { "score": 0.18, "reliability": 0.4 }
+        "name": "加拿大", "rank": 30, "logo": "https://flagcdn.com/w160/ca.png", "flag": "https://flagcdn.com/w80/ca.png",
+        "lastPlayedAt": "2026-07-03T07:00:00+08:00", "travelKm": 80,
+        "form": [{ "result": "W", "gf": 2, "ga": 1 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 0 },{ "result": "L", "gf": 1, "ga": 2 },{ "result": "D", "gf": 0, "ga": 0 }],
+        "injuries": [], "suspensions": [],
+        "publicSentiment": { "score": 0.1, "reliability": 0.28 },
+        "keyPlayers": [{ "name": "速度前锋", "role": "冲击点", "photo": "" },{ "name": "边路核心", "role": "推进点", "photo": "" }]
       },
       "away": {
-        "name": "波黑",
-        "rank": 62,
-        "lastPlayedAt": "2026-07-03T08:00:00+08:00",
-        "travelKm": 8400,
-        "form": [
-          { "result": "L", "gf": 0, "ga": 2 },
-          { "result": "D", "gf": 1, "ga": 1 },
-          { "result": "L", "gf": 1, "ga": 3 },
-          { "result": "W", "gf": 2, "ga": 1 },
-          { "result": "L", "gf": 1, "ga": 2 }
-        ],
-        "injuries": [{ "name": "核心中场", "role": "starter", "impact": 0.11 }],
-        "suspensions": [],
-        "publicSentiment": { "score": -0.16, "reliability": 0.42 }
+        "name": "波黑", "rank": 62, "logo": "https://flagcdn.com/w160/ba.png", "flag": "https://flagcdn.com/w80/ba.png",
+        "lastPlayedAt": "2026-07-02T06:00:00+08:00", "travelKm": 2400,
+        "form": [{ "result": "L", "gf": 0, "ga": 1 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "L", "gf": 1, "ga": 3 },{ "result": "D", "gf": 0, "ga": 0 }],
+        "injuries": [{ "name": "中场主力", "role": "starter", "impact": 0.06 }], "suspensions": [],
+        "publicSentiment": { "score": -0.05, "reliability": 0.22 },
+        "keyPlayers": [{ "name": "锋线支点", "role": "终结点", "photo": "" },{ "name": "后防核心", "role": "对抗点", "photo": "" }]
       },
-      "weather": { "tempC": 16, "humidity": 70, "windKph": 9, "rainMm": 0.5 },
-      "tactical": { "tempo": 0.4, "press": 0.35 }
+      "weather": { "tempC": 17, "humidity": 66, "windKph": 9, "rainMm": 0 },
+      "tactical": { "tempo": 0.1, "press": 0.15 }
     }
   ]
 }

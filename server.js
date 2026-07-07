@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'jingxi-admin-2026';
 const DATA_FILE = path.join(__dirname, 'data', 'matches.json');
+const PUBLIC_DATA_FILE = process.env.PUBLIC_DATA_FILE || '/var/www/jingxi-football/data/matches.json';
 
 function send(res, code, data) {
   const body = JSON.stringify(data, null, 2);
@@ -55,11 +56,22 @@ function validatePayload(payload) {
   return '';
 }
 
+function writeJson(file, payload) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(payload, null, 2), 'utf-8');
+}
+
 const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return send(res, 200, { ok: true });
 
   if (req.method === 'GET' && req.url === '/api/health') {
-    return send(res, 200, { ok: true, service: 'jingxi-football-api', time: new Date().toISOString() });
+    return send(res, 200, {
+      ok: true,
+      service: 'jingxi-football-api',
+      time: new Date().toISOString(),
+      dataFile: DATA_FILE,
+      publicDataFile: PUBLIC_DATA_FILE
+    });
   }
 
   if (req.method === 'GET' && req.url === '/api/matches') {
@@ -82,9 +94,16 @@ const server = http.createServer(async (req, res) => {
       if (err) return send(res, 400, { ok: false, message: err });
       payload.updatedAt = new Date().toISOString();
       payload.mode = payload.mode || 'internal-data-file';
-      fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-      fs.writeFileSync(DATA_FILE, JSON.stringify(payload, null, 2), 'utf-8');
-      return send(res, 200, { ok: true, message: '保存成功', updatedAt: payload.updatedAt, count: payload.matches.length });
+      writeJson(DATA_FILE, payload);
+      writeJson(PUBLIC_DATA_FILE, payload);
+      return send(res, 200, {
+        ok: true,
+        message: '保存成功，前台数据已同步',
+        updatedAt: payload.updatedAt,
+        count: payload.matches.length,
+        dataFile: DATA_FILE,
+        publicDataFile: PUBLIC_DATA_FILE
+      });
     } catch (err) {
       return send(res, 500, { ok: false, message: '保存失败', detail: err.message });
     }

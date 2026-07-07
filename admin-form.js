@@ -5,12 +5,16 @@ let currentId = '';
 function status(text) { $('statusBox').textContent = text; }
 function num(v, fallback = 0) { const n = Number(v); return Number.isFinite(n) ? n : fallback; }
 function val(id, value) { if (value === undefined) return $(id).value.trim(); $(id).value = value ?? ''; }
+function token() { return $('tokenInput').value.trim(); }
 
 async function loadData() {
+  const t = token();
+  if (!t) return status('请先输入后台口令，再点击读取数据。');
   try {
-    const res = await fetch('/api/matches', { cache: 'no-store' });
-    if (!res.ok) throw new Error('api error');
-    data = await res.json();
+    const res = await fetch('/api/matches', { cache: 'no-store', headers: { 'x-admin-token': t } });
+    const payload = await res.json();
+    if (!res.ok) throw new Error(payload.message || '读取失败');
+    data = payload;
     currentId = data.matches?.[0]?.id || '';
     renderList();
     fillForm(getCurrent());
@@ -138,14 +142,14 @@ function saveCurrentToMemory() {
 }
 
 async function saveToServer() {
-  const token = val('tokenInput');
-  if (!token) return status('请先输入后台口令。');
+  const t = token();
+  if (!t) return status('请先输入后台口令。');
   const err = saveCurrentToMemory();
   if (err) return status(err);
   try {
     const res = await fetch('/api/matches', {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-admin-token': token },
+      headers: { 'content-type': 'application/json', 'x-admin-token': t },
       body: JSON.stringify(data)
     });
     const result = await res.json();
@@ -211,4 +215,4 @@ $('copyBtn').onclick = copyMatch;
 $('deleteBtn').onclick = deleteMatch;
 $('jsonBtn').onclick = () => location.href = './admin.html?admin2';
 $('frontBtn').onclick = () => location.href = './?phase2';
-loadData();
+status('请输入后台口令后点击“读取数据”。');

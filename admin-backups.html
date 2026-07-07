@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鲸喜足球 · 备份管理</title>
+  <link rel="stylesheet" href="./styles.css?v=backup1" />
+  <style>
+    .backup-layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 18px; margin-top: 18px; align-items: start; }
+    .backup-card { background: rgba(3,16,24,.52); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+    label { display: grid; gap: 8px; color: var(--muted); font-weight: 800; margin-bottom: 12px; }
+    input { width: 100%; border: 1px solid var(--line); background: rgba(3,16,24,.88); color: var(--text); border-radius: 12px; padding: 11px 12px; outline: none; }
+    .backup-item { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.04); margin-bottom: 10px; }
+    .backup-item strong { display:block; margin-bottom: 4px; }
+    .backup-item span, .status { color: var(--muted); line-height: 1.7; }
+    .actions { display:flex; flex-wrap: wrap; gap: 10px; }
+    .danger-btn { background: var(--danger); color: white; }
+    @media (max-width: 900px) { .backup-layout { grid-template-columns: 1fr; } .backup-item { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">BACKUP MANAGER</div>
+        <h1>备份管理</h1>
+        <p>查看最近备份，必要时一键恢复。恢复前系统会再次备份当前数据。</p>
+      </div>
+      <div class="hero-actions">
+        <button id="loadBtn">刷新备份</button>
+        <button id="formBtn" class="ghost">表单后台</button>
+        <button id="frontBtn" class="ghost">返回模型</button>
+      </div>
+    </header>
+
+    <section class="backup-layout">
+      <aside class="panel">
+        <h2>恢复设置</h2>
+        <div class="backup-card">
+          <label>后台口令
+            <input id="tokenInput" type="password" placeholder="输入内部维护口令" />
+          </label>
+          <p class="status">恢复会把选中的备份写回当前数据，并同步到前台页面。</p>
+        </div>
+        <h2 style="margin-top:16px;">状态</h2>
+        <div id="statusBox" class="backup-card status">等待加载...</div>
+      </aside>
+
+      <main class="panel">
+        <h2>最近备份</h2>
+        <p class="status">默认展示最近 30 个备份。</p>
+        <div id="backupList"></div>
+      </main>
+    </section>
+  </div>
+  <script type="module" src="./admin-backups.js?v=backup1"></script>
+</body>
+</html>

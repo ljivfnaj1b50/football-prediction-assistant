@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鲸喜足球 · 内部控制台</title>
+  <link rel="stylesheet" href="./styles.css?v=console1" />
+  <style>
+    .console-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+    .console-card { display: block; min-height: 190px; padding: 22px; border: 1px solid var(--line); border-radius: 22px; background: rgba(3,16,24,.58); color: var(--text); text-decoration: none; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+    .console-card:hover { transform: translateY(-3px); border-color: rgba(49,230,161,.45); background: rgba(49,230,161,.08); }
+    .console-card h2 { margin: 0 0 10px; }
+    .console-card p { color: var(--muted); line-height: 1.7; margin: 0; }
+    .console-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; padding: 6px 10px; border-radius: 99px; background: rgba(55,214,122,.14); color: #8ff0b2; font-size: 12px; font-weight: 900; }
+    .status-box { margin-top: 18px; white-space: pre-wrap; line-height: 1.75; color: var(--muted); }
+    @media (max-width: 900px) { .console-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">JINGXI INTERNAL CONSOLE</div>
+        <h1>内部控制台</h1>
+        <p>统一入口：前台模型、表单维护、JSON维护、备份管理、服务状态。</p>
+      </div>
+      <div class="hero-actions">
+        <button id="healthBtn">检查服务</button>
+        <button id="frontBtn" class="ghost">返回模型</button>
+      </div>
+    </header>
+
+    <section class="console-grid">
+      <a class="console-card" href="./?phase2">
+        <h2>前台模型</h2>
+        <p>查看赛事列表、模型结论、概率、风险、总进球区间、比分分布和因子解释。</p>
+        <span class="console-badge">FRONT</span>
+      </a>
+
+      <a class="console-card" href="./admin-form.html?form2">
+        <h2>表单维护后台</h2>
+        <p>主要维护入口。用表单新增、复制、删除、保存比赛，不用直接编辑 JSON。</p>
+        <span class="console-badge">MAIN ADMIN</span>
+      </a>
+
+      <a class="console-card" href="./admin.html?admin2">
+        <h2>JSON 维护后台</h2>
+        <p>高级备用入口。适合批量维护、复制粘贴完整数据结构、快速排查字段问题。</p>
+        <span class="console-badge">ADVANCED</span>
+      </a>
+
+      <a class="console-card" href="./admin-backups.html?backup1">
+        <h2>备份管理</h2>
+        <p>查看最近备份，误删误改时一键恢复。恢复前会再次备份当前数据。</p>
+        <span class="console-badge">SAFE</span>
+      </a>
+    </section>
+
+    <section class="panel status-box" id="statusBox">等待检查服务...</section>
+  </div>
+  <script type="module" src="./admin-home.js?v=console1"></script>
+</body>
+</html>

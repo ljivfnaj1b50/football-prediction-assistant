@@ -31,9 +31,9 @@ function render() {
 }
 
 function sourceText() {
-  if ((meta.mode || '').includes('sporttery')) return '中国体育彩票官方口径优先';
-  if ((meta.mode || '').includes('openliga')) return '公开数据源备用口径';
-  return '今日赛事自动分析';
+  if ((meta.mode || '').includes('sporttery')) return '今日竞彩赛事 · GPT 单模型预测';
+  if ((meta.mode || '').includes('openliga')) return '公开数据源赛事 · GPT 单模型预测';
+  return '今日赛事 · GPT 单模型预测';
 }
 
 function card(x) {
@@ -41,22 +41,20 @@ function card(x) {
   const spf = x.markets.winDrawLose[0];
   const goals = x.markets.totalGoals.bands[0];
   const score = x.scores[0];
+  const explain = (x.explanation || []).slice(0, 2).join(' ');
   return `<article class="match-card">
     <div class="match-top">
-      <div>
-        <div class="match-meta"><span class="pill">${safe(m.jcNum || '待编号')}</span><span>${safe(m.competition || '足球赛事')}</span><span>${fmt(m.kickoff)}</span></div>
-      </div>
+      <div class="match-meta"><span class="pill">${safe(m.jcNum || '待编号')}</span><span>${safe(m.competition || '足球赛事')}</span><span>${fmt(m.kickoff)}</span></div>
       <span class="pill ${x.risk.key}">${safe(x.risk.label)}｜${x.confidence}%</span>
     </div>
     <div class="teams"><div class="team">${safe(m.home?.name)}</div><div class="vs">VS</div><div class="team away">${safe(m.away?.name)}</div></div>
+    <div class="main-pick"><b>${safe(x.scheme.level)}：${safe(x.scheme.primary)}</b><p>${safe(x.scheme.backup)}</p></div>
     <div class="result-grid">
       <div class="result"><h3>胜平负</h3><strong>${safe(spf.label)}</strong><p>${spf.p}%</p></div>
       <div class="result"><h3>总进球</h3><strong>${safe(goals.label)}</strong><p>${goals.p}%</p></div>
       <div class="result"><h3>比分</h3><strong>${safe(score.score)}</strong><p>${score.p}%</p></div>
-      <div class="result"><h3>风险</h3><strong>${safe(x.risk.label)}</strong><p>信心 ${x.confidence}%</p></div>
     </div>
-    <div class="gpt-box"><h3>GPT 综合结论</h3><p>${safe(x.scheme.primary)}。${safe(x.scheme.backup)}</p></div>
-    <div class="reason">${safe((x.explanation || []).slice(0, 2).join(' '))}</div>
+    <div class="gpt-box"><h3>GPT 分析理由</h3><p>${safe(explain || '暂无更多分析理由。')}</p></div>
   </article>`;
 }
 
@@ -75,7 +73,6 @@ document.querySelectorAll('.tab').forEach(btn => {
     render();
   };
 });
-
 load(true);
 setInterval(() => load(true), AUTO_REFRESH_MS);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(false); });

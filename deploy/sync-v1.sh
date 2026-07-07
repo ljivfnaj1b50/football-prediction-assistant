@@ -9,6 +9,7 @@ mkdir -p "$WEB_DIR/data"
 
 cp index.html "$WEB_DIR/index.html"
 cp styles.css "$WEB_DIR/styles.css"
+cp front-v2.css "$WEB_DIR/front-v2.css"
 cp app.js "$WEB_DIR/app.js"
 cp model.js "$WEB_DIR/model.js"
 cp admin.html "$WEB_DIR/admin.html"
@@ -27,4 +28,4 @@ nginx -t
 systemctl restart nginx
 systemctl restart jingxi-football-api || true
 
-echo "OK_V1_SYNC_DONE"
+echo "OK_V2_SYNC_DONE"

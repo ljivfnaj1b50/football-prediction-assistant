@@ -1,4 +1,5 @@
 import { analyzeMatch, rankAnalyses } from './model.js';
+import { localizeMatch } from './team-cn-map.js';
 
 const $ = id => document.getElementById(id);
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
@@ -11,7 +12,7 @@ function injectV2Style() {
   if (document.querySelector('link[href*="front-v2.css"]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './front-v2.css?v=v2-pro';
+  link.href = './front-v2.css?v=v3-jc';
   document.head.appendChild(link);
 }
 
@@ -26,7 +27,7 @@ async function load(force = false) {
     if (!res.ok) throw new Error('data not found');
     const payload = await res.json();
     meta = payload;
-    rows = (payload.matches || []).map(analyzeMatch);
+    rows = (payload.matches || []).map(localizeMatch).map(analyzeMatch);
     if (!rows.find(x => x.id === currentId)) currentId = rows[0]?.id || '';
   } catch (err) {
     meta = { updatedAt: new Date().toISOString(), mode: 'error', sources: [{ name: '数据源', status: 'error', detail: '读取失败：' + err.message }] };
@@ -41,10 +42,9 @@ async function load(force = false) {
 
 function renderSources() {
   const sources = meta.sources || [];
-  $('sourceStatus').innerHTML = sources.map(s => `<div class="status-card"><strong>${safe(s.name)}</strong><p>${safe(s.detail || '')}</p><span class="status-pill status-${safe(s.status || 'demo')}">${safe(s.status || 'V2')}</span></div>`).join('');
-  const sourceName = meta.live?.noKeySource ? '无Key公开数据源' : (meta.live?.enabled ? '实时接口' : '内部缓存');
-  const liveText = `${sourceName}｜自动刷新：已开启｜${safe(meta.mode || '-')}`;
-  setText('liveMode', liveText);
+  $('sourceStatus').innerHTML = sources.map(s => `<div class="status-card"><strong>${safe(s.name)}</strong><p>${safe(s.detail || '')}</p><span class="status-pill status-${safe(s.status || 'demo')}">${safe(s.status || 'V3')}</span></div>`).join('');
+  const sourceName = meta.mode?.includes('sporttery') ? '中国体育彩票口径' : (meta.live?.noKeySource ? '公开数据备用源' : (meta.live?.enabled ? '实时接口' : '内部缓存'));
+  setText('liveMode', `${sourceName}｜自动刷新：已开启`);
   setText('lastUpdated', `最近更新：${fmt(meta.updatedAt)}｜赛事 ${rows.length} 场｜下次自动刷新约 ${Math.round(AUTO_REFRESH_MS / 60000)} 分钟`);
   setText('matchCount', rows.length);
   setText('lowRiskCount', rows.filter(x => x.risk.key === 'low').length);
@@ -68,17 +68,19 @@ function teamLogo(team) {
 }
 function flag(team) { return team.flag ? `<img class="flag" src="${safe(team.flag)}" alt="flag">` : ''; }
 function initial(name='') { return safe(String(name).slice(0,1) || '队'); }
+function jcNum(m) { return m.jcNum ? `<span class="jc-num">${safe(m.jcNum)}</span>` : '<span class="jc-num">待编号</span>'; }
 
 function card(x) {
   const m = x.match;
   return `<article class="match-card ${x.id===currentId?'active':''}" data-id="${safe(x.id)}">
+    <div class="jc-row"><span>${jcNum(m)} ${safe(m.competition || '足球赛事')}</span><span>${fmt(m.kickoff)}</span></div>
     <div class="card-teams">
       <div class="team-mini">${teamLogo(m.home)}<div><strong>${safe(m.home.name)}</strong><br>${flag(m.home)}</div></div>
       <div class="vs">VS</div>
       <div class="team-mini away">${teamLogo(m.away)}<div><strong>${safe(m.away.name)}</strong><br>${flag(m.away)}</div></div>
     </div>
-    <div class="card-meta"><span>${safe(m.competition)}｜${fmt(m.kickoff)}</span><span class="badge ${x.risk.key}">${safe(x.risk.label)}</span></div>
-    <div class="small">${safe(x.scheme.text)}｜信心 ${x.confidence}%</div>
+    <div class="card-meta"><span>${safe(x.scheme.primary)}</span><span class="badge ${x.risk.key}">${safe(x.risk.label)}</span></div>
+    <div class="small">信心 ${x.confidence}%｜${safe(x.scheme.backup)}</div>
   </article>`;
 }
 
@@ -89,8 +91,8 @@ function marketCard(title, rows, primaryKey) {
 function playerCards(team) {
   const players = team.keyPlayers || team.players || [];
   const list = players.length ? players.slice(0, 4) : [
-    { name: '核心球员', role: '待接口补充' },
-    { name: '关键替补', role: '待接口补充' }
+    { name: '核心球员', role: '待数据补充' },
+    { name: '关键替补', role: '待数据补充' }
   ];
   return list.map(p => `<div class="player-card">${p.photo ? `<img class="avatar" src="${safe(p.photo)}" onerror="this.outerHTML='<div class=&quot;avatar&quot;>${initial(p.name)}</div>'">` : `<div class="avatar">${initial(p.name)}</div>`}<div><strong>${safe(p.name)}</strong><p>${safe(p.role || p.position || '')}</p></div></div>`).join('');
 }
@@ -109,42 +111,16 @@ function show(x) {
   $('matchDetail').innerHTML = `<div class="detail-shell">
     <section class="match-hero">
       <div class="match-hero-top">
-        <div><div class="eyebrow">MATCH ANALYSIS</div><h2>${safe(m.competition)}｜${safe(m.stage || '')}</h2><p class="kickoff">${fmt(m.kickoff)}｜${safe(m.venue?.name || '')}｜${safe(m.venue?.city || '')}</p></div>
+        <div><div class="eyebrow">JINGCAI MATCH ANALYSIS</div><h2>${jcNum(m)} ${safe(m.competition)}｜${safe(m.stage || '')}</h2><p class="kickoff">${fmt(m.kickoff)}｜${safe(m.venue?.name || '')}｜${safe(m.venue?.city || '')}</p></div>
         <span class="badge ${x.risk.key}">${safe(x.risk.label)} · 信心 ${x.confidence}%</span>
       </div>
-      <div class="big-teams">
-        <div class="big-team">${teamLogo(m.home)}<strong>${safe(m.home.name)}</strong>${flag(m.home)}</div>
-        <div class="vs">VS</div>
-        <div class="big-team">${teamLogo(m.away)}<strong>${safe(m.away.name)}</strong>${flag(m.away)}</div>
-      </div>
+      <div class="big-teams"><div class="big-team">${teamLogo(m.home)}<strong>${safe(m.home.name)}</strong>${flag(m.home)}</div><div class="vs">VS</div><div class="big-team">${teamLogo(m.away)}<strong>${safe(m.away.name)}</strong>${flag(m.away)}</div></div>
     </section>
-
-    <section class="scheme-box">
-      <h2>最终综合方案：${safe(x.scheme.level)}</h2>
-      <p><strong>${safe(x.scheme.primary)}</strong></p>
-      <p>${safe(x.scheme.backup)}</p>
-      <p class="small">${safe(x.risk.text)}</p>
-    </section>
-
-    <section class="market-grid">
-      ${marketCard('胜平负概率', winRows, true)}
-      ${marketCard('双选防线', doubleRows, false)}
-      ${marketCard('总进球区间', goalRows, false)}
-    </section>
-
-    <section class="market-grid">
-      ${marketCard('精确总进球', exactGoalRows, false)}
-      <div class="market-card"><h3>大小球倾向</h3><div class="num">${x.markets.totalGoals.over25}%</div><p>大于2.5球概率</p><div class="progress"><span style="width:${x.markets.totalGoals.over25}%"></span></div><p class="small">小于2.5球：${x.markets.totalGoals.under25}%｜小于3.5球：${x.markets.totalGoals.under35}%</p></div>
-      <div class="market-card"><h3>预期进球</h3><div class="num">${x.xg.home} : ${x.xg.away}</div><p>综合近期状态、排名、人员、疲劳、环境修正。</p></div>
-    </section>
-
-    <section class="two-col">
-      <div class="panel"><h2>详细分析原因</h2><ul class="reason-list">${x.explanation.map(v=>`<li>${safe(v)}</li>`).join('')}</ul></div>
-      <div class="panel"><h2>关键因子</h2><div class="factor-grid"><div class="factor-card"><h3>环境</h3><div class="num">${x.factors.environment}%</div></div><div class="factor-card"><h3>主队折损</h3><div class="num">${x.factors.homeDrag}%</div></div><div class="factor-card"><h3>客队折损</h3><div class="num">${x.factors.awayDrag}%</div></div><div class="factor-card"><h3>不确定性</h3><div class="num">${x.factors.uncertainty}%</div></div></div></div>
-    </section>
-
-    <section class="panel"><h2>队员照片 / 关键球员</h2><div class="player-grid">${playerCards(m.home)}${playerCards(m.away)}</div><p class="small">球员照片需要第三方数据源返回 photo 字段；未接入时显示占位头像。</p></section>
-
+    <section class="scheme-box"><h2>综合方向：${safe(x.scheme.level)}</h2><p><strong>${safe(x.scheme.primary)}</strong></p><p>${safe(x.scheme.backup)}</p><p class="small">${safe(x.risk.text)}</p></section>
+    <section class="market-grid">${marketCard('胜平负概率', winRows, true)}${marketCard('双选防线', doubleRows, false)}${marketCard('总进球区间', goalRows, false)}</section>
+    <section class="market-grid">${marketCard('精确总进球', exactGoalRows, false)}<div class="market-card"><h3>大小球倾向</h3><div class="num">${x.markets.totalGoals.over25}%</div><p>大于2.5球概率</p><div class="progress"><span style="width:${x.markets.totalGoals.over25}%"></span></div><p class="small">小于2.5球：${x.markets.totalGoals.under25}%｜小于3.5球：${x.markets.totalGoals.under35}%</p></div><div class="market-card"><h3>预期进球</h3><div class="num">${x.xg.home} : ${x.xg.away}</div><p>综合近期状态、排名、人员、疲劳、环境修正。</p></div></section>
+    <section class="two-col"><div class="panel"><h2>详细分析原因</h2><ul class="reason-list">${x.explanation.map(v=>`<li>${safe(v)}</li>`).join('')}</ul></div><div class="panel"><h2>关键因子</h2><div class="factor-grid"><div class="factor-card"><h3>环境</h3><div class="num">${x.factors.environment}%</div></div><div class="factor-card"><h3>主队折损</h3><div class="num">${x.factors.homeDrag}%</div></div><div class="factor-card"><h3>客队折损</h3><div class="num">${x.factors.awayDrag}%</div></div><div class="factor-card"><h3>不确定性</h3><div class="num">${x.factors.uncertainty}%</div></div></div></div></section>
+    <section class="panel"><h2>队员照片 / 关键球员</h2><div class="player-grid">${playerCards(m.home)}${playerCards(m.away)}</div><p class="small">球员照片需稳定授权数据源；当前以官方赛程口径为主，照片为辅助。</p></section>
     <section class="panel"><h2>比分分布</h2><div class="score-grid">${x.scores.map(s=>`<div class="score-chip"><strong>${s.score}</strong><span>${s.p}%</span></div>`).join('')}</div></section>
   </div>`;
 }

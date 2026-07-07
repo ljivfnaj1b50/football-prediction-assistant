@@ -151,7 +151,7 @@ async function saveToServer() {
     const result = await res.json();
     if (!res.ok || !result.ok) return status('保存失败：' + (result.message || res.status));
     renderList();
-    status(`保存成功\n更新时间：${result.updatedAt}\n赛事数量：${result.count}\n回前台点击自动刷新数据即可看到结果。`);
+    status(`保存成功\n更新时间：${result.updatedAt}\n赛事数量：${result.count}\n前台数据已同步，回前台点击自动刷新数据即可看到结果。`);
   } catch (err) {
     status('保存异常：' + err.message);
   }
@@ -175,11 +175,40 @@ function newMatch() {
   status('已新增比赛，填写后点保存。');
 }
 
+function copyMatch() {
+  if (!data) return status('请先读取数据。');
+  const current = collectMatch();
+  const clone = JSON.parse(JSON.stringify(current));
+  clone.id = `copy-${Date.now()}`;
+  clone.home.name = `${clone.home.name} 副本`;
+  data.matches.unshift(clone);
+  currentId = clone.id;
+  data.updatedAt = new Date().toISOString();
+  renderList();
+  fillForm(clone);
+  status('已复制当前比赛，确认信息后点保存。');
+}
+
+function deleteMatch() {
+  if (!data || !currentId) return status('没有可删除的比赛。');
+  const current = getCurrent();
+  const name = `${current?.home?.name || ''} vs ${current?.away?.name || ''}`;
+  if (!confirm(`确认删除：${name}？删除后需要点击保存才会写入服务器。`)) return;
+  data.matches = data.matches.filter(m => m.id !== currentId);
+  currentId = data.matches[0]?.id || '';
+  data.updatedAt = new Date().toISOString();
+  renderList();
+  fillForm(getCurrent());
+  status('已从列表删除当前比赛，点击保存当前比赛后才会写入服务器。');
+}
+
 function escapeHtml(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 $('loadBtn').onclick = loadData;
 $('saveBtn').onclick = saveToServer;
 $('newBtn').onclick = newMatch;
+$('copyBtn').onclick = copyMatch;
+$('deleteBtn').onclick = deleteMatch;
 $('jsonBtn').onclick = () => location.href = './admin.html?admin2';
 $('frontBtn').onclick = () => location.href = './?phase2';
 loadData();

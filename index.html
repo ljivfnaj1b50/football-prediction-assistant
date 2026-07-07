@@ -3,39 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>鲸喜足球风控模型</title>
-  <link rel="stylesheet" href="./styles.css?v=phase2" />
+  <title>鲸喜足球数据分析平台</title>
+  <link rel="stylesheet" href="./styles.css?v=v2-pro" />
 </head>
 <body>
+  <div class="stadium-bg"></div>
   <div class="app-shell">
-    <header class="hero">
-      <div class="brand-block">
-        <div class="eyebrow">JINGXI FOOTBALL RISK MODEL</div>
-        <h1>鲸喜足球风控模型</h1>
-        <p>自动抓取赛程、球队状态、盘口水位、天气环境、伤停停赛、赛程疲劳与公开新闻信号，输出概率、风险、冷热和模型依据。</p>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">鲸</div>
+        <div>
+          <div class="eyebrow">JINGXI FOOTBALL DATA</div>
+          <h1>鲸喜足球数据分析平台</h1>
+          <p>实时赛程 · 历史状态 · 多维概率 · 进球分布 · 比分分布 · 风险解释 · 综合方案</p>
+        </div>
       </div>
       <div class="hero-actions">
-        <button id="refreshBtn">自动刷新数据</button>
-        <button id="demoBtn" class="ghost">无接口演示</button>
-        <button class="ghost" onclick="location.href='./admin-home.html?console1'">内部控制台</button>
+        <button id="refreshBtn">刷新实时数据</button>
+        <button id="demoBtn" class="ghost">重新计算</button>
+        <button class="ghost" onclick="location.href='./admin-home.html?console2'">内部控制台</button>
       </div>
     </header>
 
     <main>
+      <section class="ticker panel">
+        <div>
+          <span class="live-dot"></span>
+          <strong id="liveMode">等待数据同步</strong>
+          <p id="lastUpdated">正在连接数据源...</p>
+        </div>
+        <div class="quick-stats">
+          <div><b id="matchCount">0</b><span>赛事</span></div>
+          <div><b id="lowRiskCount">0</b><span>低风险</span></div>
+          <div><b id="avgConfidence">0%</b><span>平均信心</span></div>
+        </div>
+      </section>
+
       <section class="status-grid" id="sourceStatus"></section>
 
       <section class="toolbar panel">
         <div>
-          <h2>自动赛事池</h2>
-          <p id="lastUpdated">等待同步数据...</p>
+          <h2>赛事数据池</h2>
+          <p>优先读取服务器实时接口；无接口密钥时读取内部缓存数据。</p>
         </div>
         <div class="filters">
           <select id="riskFilter" aria-label="风险筛选">
             <option value="all">全部风险</option>
-            <option value="low">只看低风险</option>
-            <option value="medium">只看中风险</option>
-            <option value="high">只看高风险</option>
-            <option value="avoid">只看避开</option>
+            <option value="low">低风险</option>
+            <option value="medium">中风险</option>
+            <option value="high">高风险</option>
+            <option value="avoid">避开</option>
           </select>
           <select id="sortBy" aria-label="排序">
             <option value="confidence">按模型信心</option>
@@ -48,25 +65,28 @@
 
       <section class="grid-layout">
         <aside class="panel match-list-panel">
-          <h2>比赛列表</h2>
+          <div class="section-head">
+            <h2>比赛列表</h2>
+            <span id="listHint">请选择比赛</span>
+          </div>
           <div id="matchList" class="match-list"></div>
         </aside>
 
-        <section class="panel detail-panel">
-          <div id="matchDetail" class="empty-state">
+        <section class="detail-panel">
+          <div id="matchDetail" class="empty-state panel">
             <h2>正在准备模型...</h2>
-            <p>点击“自动刷新数据”。没有接口 Key 时，会启用演示数据，但模型逻辑是真实结构，不再是手工打分。</p>
+            <p>点击“刷新实时数据”。系统会输出概率、进球区间、比分分布、详细原因和综合方案。</p>
           </div>
         </section>
       </section>
 
       <section class="panel model-note">
-        <h2>风控原则</h2>
-        <p>模型只使用公开数据和已接入接口数据。更衣室关系、教练私人关系、球员私人关系这类内容，只能通过公开新闻、发布会、可信记者报道做低权重舆情信号；不能伪造成确定事实。</p>
+        <h2>模型说明</h2>
+        <p>系统以赛程、历史状态、排名、人员状态、停赛、天气、海拔、市场热度和公开信号做综合分析。情绪类和队内氛围类内容只按公开报道做低权重信号，不伪造成确定事实。所有结果仅作为内部分析参考。</p>
       </section>
     </main>
   </div>
 
-  <script type="module" src="./app.js?v=phase2"></script>
+  <script type="module" src="./app.js?v=v2-pro"></script>
 </body>
 </html>

@@ -4,17 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>鲸喜足球 · 内部数据维护</title>
-  <link rel="stylesheet" href="./styles.css?v=admin1" />
+  <link rel="stylesheet" href="./styles.css?v=admin2" />
   <style>
-    .admin-layout { display: grid; grid-template-columns: 360px 1fr; gap: 18px; margin-top: 18px; }
+    .admin-layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 18px; margin-top: 18px; align-items: start; }
     .admin-box { background: rgba(3,16,24,.52); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
     .admin-box label { display: grid; gap: 8px; color: var(--muted); font-weight: 700; margin-bottom: 12px; }
-    .admin-box input, .admin-box textarea { width: 100%; border: 1px solid var(--line); background: rgba(3,16,24,.85); color: var(--text); border-radius: 12px; padding: 11px 12px; outline: none; }
-    textarea { min-height: 560px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; line-height: 1.55; }
+    .admin-box input { width: 100%; border: 1px solid var(--line); background: rgba(3,16,24,.85); color: var(--text); border-radius: 12px; padding: 11px 12px; outline: none; }
+    .editor-panel { min-width: 0; }
+    .editor-wrap { margin-top: 12px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: rgba(3,16,24,.85); }
+    #jsonEditor { display: block; width: 100%; min-height: 68vh; resize: vertical; border: 0; outline: none; padding: 18px; background: transparent; color: var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; line-height: 1.62; white-space: pre; overflow: auto; tab-size: 2; }
     .admin-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-    .admin-status { white-space: pre-wrap; line-height: 1.7; color: var(--muted); }
-    .quick-card { padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.04); margin-bottom: 10px; }
-    @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+    .admin-status { white-space: pre-wrap; line-height: 1.7; color: var(--muted); max-height: 360px; overflow: auto; }
+    .quick-card { padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.04); margin-bottom: 10px; color: var(--muted); }
+    .admin-tip { margin-top: 8px; color: var(--muted); }
+    @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } #jsonEditor { min-height: 60vh; } }
   </style>
 </head>
 <body>
@@ -55,13 +58,15 @@
         <div class="quick-card">4. 输入口令，点“保存到服务器”。</div>
       </aside>
 
-      <main class="panel">
+      <main class="panel editor-panel">
         <h2>赛事数据 JSON</h2>
-        <p>先用 JSON 维护，后续再升级成表单式后台。</p>
-        <textarea id="jsonEditor" spellcheck="false"></textarea>
+        <p class="admin-tip">先用 JSON 维护，后续升级成表单式后台。当前版本已优化编辑区宽度。</p>
+        <div class="editor-wrap">
+          <textarea id="jsonEditor" spellcheck="false"></textarea>
+        </div>
       </main>
     </section>
   </div>
-  <script type="module" src="./admin.js?v=admin1"></script>
+  <script type="module" src="./admin.js?v=admin2"></script>
 </body>
 </html>

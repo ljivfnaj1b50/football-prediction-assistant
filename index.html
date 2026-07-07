@@ -3,90 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>鲸喜足球数据分析平台</title>
-  <link rel="stylesheet" href="./styles.css?v=v2-pro" />
+  <title>鲸喜足球 · 今日赛事预测</title>
+  <link rel="stylesheet" href="./today.css?v=one-gpt" />
 </head>
 <body>
-  <div class="stadium-bg"></div>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark">鲸</div>
-        <div>
-          <div class="eyebrow">JINGXI FOOTBALL DATA</div>
-          <h1>鲸喜足球数据分析平台</h1>
-          <p>实时赛程 · 历史状态 · 多维概率 · 进球分布 · 比分分布 · 风险解释 · 综合方案</p>
-        </div>
+  <div class="page">
+    <header class="header">
+      <div>
+        <div class="sub">JINGXI FOOTBALL · GPT 单模型</div>
+        <h1>今日足球赛事预测</h1>
+        <p>按中国体育彩票赛程口径整理，使用一个 GPT 综合模型输出胜平负、总进球、比分和风险参考。</p>
       </div>
-      <div class="hero-actions">
-        <button id="refreshBtn">刷新实时数据</button>
-        <button id="demoBtn" class="ghost">重新计算</button>
-        <button class="ghost" onclick="location.href='./admin-home.html?console2'">内部控制台</button>
-      </div>
+      <button id="refreshBtn">刷新数据</button>
     </header>
 
-    <main>
-      <section class="ticker panel">
-        <div>
-          <span class="live-dot"></span>
-          <strong id="liveMode">等待数据同步</strong>
-          <p id="lastUpdated">正在连接数据源...</p>
-        </div>
-        <div class="quick-stats">
-          <div><b id="matchCount">0</b><span>赛事</span></div>
-          <div><b id="lowRiskCount">0</b><span>低风险</span></div>
-          <div><b id="avgConfidence">0%</b><span>平均信心</span></div>
-        </div>
-      </section>
+    <section class="notice">
+      <strong id="liveMode">正在同步今日赛事...</strong>
+      <span id="lastUpdated">等待更新</span>
+    </section>
 
-      <section class="status-grid" id="sourceStatus"></section>
+    <section class="summary-grid">
+      <div><b id="matchCount">0</b><span>今日赛事</span></div>
+      <div><b id="lowRiskCount">0</b><span>低风险</span></div>
+      <div><b id="avgConfidence">0%</b><span>平均信心</span></div>
+    </section>
 
-      <section class="toolbar panel">
-        <div>
-          <h2>赛事数据池</h2>
-          <p>优先读取服务器实时接口；无接口密钥时读取内部缓存数据。</p>
-        </div>
-        <div class="filters">
-          <select id="riskFilter" aria-label="风险筛选">
-            <option value="all">全部风险</option>
-            <option value="low">低风险</option>
-            <option value="medium">中风险</option>
-            <option value="high">高风险</option>
-            <option value="avoid">避开</option>
-          </select>
-          <select id="sortBy" aria-label="排序">
-            <option value="confidence">按模型信心</option>
-            <option value="edge">按市场偏差</option>
-            <option value="kickoff">按开球时间</option>
-            <option value="risk">按风险等级</option>
-          </select>
-        </div>
-      </section>
+    <section class="filter-bar">
+      <button class="tab active" data-risk="all">全部</button>
+      <button class="tab" data-risk="low">低风险</button>
+      <button class="tab" data-risk="medium">中风险</button>
+      <button class="tab" data-risk="high">高风险</button>
+      <button class="tab" data-risk="avoid">建议避开</button>
+    </section>
 
-      <section class="grid-layout">
-        <aside class="panel match-list-panel">
-          <div class="section-head">
-            <h2>比赛列表</h2>
-            <span id="listHint">请选择比赛</span>
-          </div>
-          <div id="matchList" class="match-list"></div>
-        </aside>
+    <main id="matchList" class="match-list"></main>
 
-        <section class="detail-panel">
-          <div id="matchDetail" class="empty-state panel">
-            <h2>正在准备模型...</h2>
-            <p>点击“刷新实时数据”。系统会输出概率、进球区间、比分分布、详细原因和综合方案。</p>
-          </div>
-        </section>
-      </section>
-
-      <section class="panel model-note">
-        <h2>模型说明</h2>
-        <p>系统以赛程、历史状态、排名、人员状态、停赛、天气、海拔、市场热度和公开信号做综合分析。情绪类和队内氛围类内容只按公开报道做低权重信号，不伪造成确定事实。所有结果仅作为内部分析参考。</p>
-      </section>
-    </main>
+    <section class="footer-note">
+      <p>说明：本页面只保留一个 GPT 综合模型，不做多模型对比、不做会员登录、不接收费入口。结果仅作内部分析参考，最终以中国体育彩票官方赛程与临场信息为准。</p>
+    </section>
   </div>
 
-  <script type="module" src="./app.js?v=v2-pro"></script>
+  <script type="module" src="./today.js?v=one-gpt"></script>
 </body>
 </html>

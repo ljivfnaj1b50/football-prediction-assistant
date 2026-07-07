@@ -10,9 +10,11 @@ mkdir -p "$APP_DIR/data/history"
 mkdir -p "$APP_DIR/data/backups"
 
 cp index.html "$WEB_DIR/index.html"
+if [ -f today.css ]; then cp today.css "$WEB_DIR/today.css"; fi
+if [ -f today.js ]; then cp today.js "$WEB_DIR/today.js"; fi
+if [ -f team-cn-map.js ]; then cp team-cn-map.js "$WEB_DIR/team-cn-map.js"; fi
 cp styles.css "$WEB_DIR/styles.css"
 if [ -f front-v2.css ]; then cp front-v2.css "$WEB_DIR/front-v2.css"; fi
-if [ -f team-cn-map.js ]; then cp team-cn-map.js "$WEB_DIR/team-cn-map.js"; fi
 cp app.js "$WEB_DIR/app.js"
 cp model.js "$WEB_DIR/model.js"
 cp admin.html "$WEB_DIR/admin.html"
@@ -34,4 +36,4 @@ systemctl restart jingxi-football-api
 sleep 2
 curl -fsS "http://127.0.0.1/api/public-feed?force=1" > /tmp/jingxi-public-feed.json || true
 
-echo "OK_V3_AUTO_SYNC_DONE"
+echo "OK_TODAY_ONE_GPT_SYNC_DONE"

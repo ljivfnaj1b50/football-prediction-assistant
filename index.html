@@ -3,46 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>鲸喜足球 · 今日赛事预测</title>
-  <link rel="stylesheet" href="./today.css?v=one-gpt" />
+  <title>鲸喜足球 · 今日实时预测</title>
+  <link rel="stylesheet" href="./today.css?v=v4-live" />
 </head>
 <body>
-  <div class="page">
-    <header class="header">
+  <div class="app">
+    <header class="topbar">
       <div>
-        <div class="sub">JINGXI FOOTBALL · GPT 单模型</div>
-        <h1>今日足球赛事预测</h1>
-        <p>按中国体育彩票赛程口径整理，使用一个 GPT 综合模型输出胜平负、总进球、比分和风险参考。</p>
+        <div class="brand">鲸喜足球</div>
+        <h1>今日实时赛事预测</h1>
+        <p>自动同步今日赛事，输出胜平负、总进球、比分、风险和最终方案。</p>
       </div>
-      <button id="refreshBtn">刷新数据</button>
+      <button id="refreshBtn" class="refresh">刷新实时数据</button>
     </header>
 
-    <section class="notice">
-      <strong id="liveMode">正在同步今日赛事...</strong>
-      <span id="lastUpdated">等待更新</span>
+    <section class="live-strip">
+      <div>
+        <span class="dot"></span>
+        <strong id="liveMode">正在连接今日数据源</strong>
+      </div>
+      <span id="lastUpdated">等待同步</span>
     </section>
 
-    <section class="summary-grid">
-      <div><b id="matchCount">0</b><span>今日赛事</span></div>
-      <div><b id="lowRiskCount">0</b><span>低风险</span></div>
-      <div><b id="avgConfidence">0%</b><span>平均信心</span></div>
+    <section class="dashboard">
+      <div class="metric"><b id="matchCount">0</b><span>今日赛事</span></div>
+      <div class="metric"><b id="bestCount">0</b><span>可关注</span></div>
+      <div class="metric"><b id="avgConfidence">0%</b><span>平均信心</span></div>
+      <div class="metric"><b id="sourceName">实时</b><span>数据口径</span></div>
     </section>
 
-    <section class="filter-bar">
-      <button class="tab active" data-risk="all">全部</button>
-      <button class="tab" data-risk="low">低风险</button>
-      <button class="tab" data-risk="medium">中风险</button>
-      <button class="tab" data-risk="high">高风险</button>
-      <button class="tab" data-risk="avoid">建议避开</button>
+    <section id="topPick" class="top-pick empty-panel">正在生成今日重点推荐...</section>
+
+    <section class="toolbar">
+      <div class="tabs">
+        <button class="tab active" data-risk="all">全部</button>
+        <button class="tab" data-risk="low">重点</button>
+        <button class="tab" data-risk="medium">谨慎</button>
+        <button class="tab" data-risk="high">高风险</button>
+        <button class="tab" data-risk="avoid">避开</button>
+      </div>
+      <select id="sortBy" aria-label="排序">
+        <option value="kickoff">按开赛时间</option>
+        <option value="confidence">按信心排序</option>
+        <option value="risk">按风险排序</option>
+      </select>
     </section>
 
     <main id="matchList" class="match-list"></main>
 
-    <section class="footer-note">
-      <p>说明：本页面只保留一个 GPT 综合模型，不做多模型对比、不做会员登录、不接收费入口。结果仅作内部分析参考，最终以中国体育彩票官方赛程与临场信息为准。</p>
-    </section>
+    <footer class="disclaimer">
+      数据自动刷新，预测结果只作分析参考。临场阵容、伤停、赔率变化会影响最终判断。
+    </footer>
   </div>
 
-  <script type="module" src="./today.js?v=one-gpt"></script>
+  <script type="module" src="./today.js?v=v4-live"></script>
 </body>
 </html>

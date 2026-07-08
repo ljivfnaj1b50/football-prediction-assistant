@@ -37,4 +37,4 @@ systemctl restart jingxi-football-api
 sleep 2
 curl -fsS "http://127.0.0.1/api/public-feed?force=1" > /tmp/jingxi-public-feed.json || true
 
-echo "OK_OFFICIAL_SOURCE_SYNC_DONE"
+echo "OK_V4_TODAY_REALTIME_DONE"

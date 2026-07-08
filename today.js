@@ -49,13 +49,16 @@ function render() {
 
 function sourceShort() {
   if ((meta.mode || '').includes('sporttery')) return '竞彩';
+  if ((meta.mode || '').includes('espn')) return '赛程';
   if ((meta.mode || '').includes('api')) return '接口';
   if ((meta.mode || '').includes('openliga')) return '公开';
+  if ((meta.mode || '').includes('public')) return '公开';
   return '缓存';
 }
 
 function sourceText() {
   if ((meta.mode || '').includes('sporttery')) return '中国竞彩网今日公开数据已同步';
+  if ((meta.mode || '').includes('espn')) return '今日公开赛程数据已同步';
   if ((meta.mode || '').includes('api')) return '授权实时接口今日数据已同步';
   if ((meta.mode || '').includes('openliga')) return '公开数据源今日数据已同步';
   if ((meta.mode || '').includes('public')) return '公开 JSON 今日数据已同步';

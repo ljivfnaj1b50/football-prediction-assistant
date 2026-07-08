@@ -188,8 +188,8 @@ function summaryRow(x) {
   const closed = isClosed(x);
   return `<button class="summary-row" data-id="${safe(x.id)}">
     <span class="summary-time">${fmt(m.kickoff)}</span>
-    <span class="summary-league">${safe(m.competition || '足球赛事')}</span>
-    <span class="summary-teams">${safe(m.home?.name)} vs ${safe(m.away?.name)}</span>
+    <span class="summary-league"><i class="league-ball">${leagueIcon(m.competition)}</i>${safe(m.competition || '足球赛事')}</span>
+    <span class="summary-teams">${teamMini(m.home)}<i class="team-vs">VS</i>${teamMini(m.away)}</span>
     <span class="summary-pick">${closed ? '历史复盘' : safe(spf.label + ' · ' + goals.label)}</span>
     <span class="summary-risk ${x.risk.key}">${safe(x.risk.label)} ${x.confidence}%</span>
   </button>`;
@@ -214,11 +214,53 @@ function detail(x) {
   const doubleChance = x.markets.doubleChance[0];
   const closed = isClosed(x);
   return `<article class="detail-card">
-    <div class="detail-head"><div><span class="jc">${safe(matchCode(m, viewMode))}</span>${closed ? '<span class="state-tag">历史复盘</span>' : ''}<h2>${safe(m.home?.name)} vs ${safe(m.away?.name)}</h2><p>${safe(m.competition || '足球赛事')} ｜ ${safe(m.stage || '赛程')} ｜ ${fmt(m.kickoff)}</p></div><span class="detail-risk ${x.risk.key}">${safe(x.risk.label)} · ${x.confidence}%</span></div>
+    <div class="detail-head">
+      <div class="team-hero">${teamHero(m.home)}<div><h2>${safe(m.home?.name)}</h2><p>${safe(teamSubline(m.home, '主队'))}</p></div></div>
+      <div class="match-core"><span class="jc">${safe(matchCode(m, viewMode))}</span>${closed ? '<span class="state-tag">历史复盘</span>' : ''}<div class="vs-mark">VS</div><p>${safe(m.competition || '足球赛事')} ｜ ${safe(m.stage || '赛程')}<br>${fmt(m.kickoff)}</p><span class="detail-risk ${x.risk.key}">${safe(x.risk.label)} · ${x.confidence}%</span></div>
+      <div class="team-hero away"><div><h2>${safe(m.away?.name)}</h2><p>${safe(teamSubline(m.away, '客队'))}</p></div>${teamHero(m.away)}</div>
+    </div>
     <div class="detail-market"><div><span>胜平负</span><b>${safe(spf.label)}</b><em>${spf.p}% ｜ 防 ${safe(doubleChance.label)}</em></div><div><span>让球参考</span><b>${safe(handicapPick(x))}</b><em>${closed ? '复盘口径' : '按风险降级'}</em></div><div><span>总进球</span><b>${safe(goals.label)}</b><em>${goals.p}%</em></div><div><span>比分参考</span><b>${safe(score.score)}</b><em>${score.p}%</em></div></div>
+    ${comparePanel(x)}
+    ${analystPanel(x)}
     <section class="long-analysis"><h3>${closed ? '赛事复盘分析' : '赛事分析'}</h3>${analysisText(x, closed)}</section>
     ${factorMatrix(x)}
   </article>`;
+}
+
+function comparePanel(x) {
+  const p = x.probabilities || {};
+  const m = x.match;
+  return `<section class="compare-panel">
+    <div class="prob-card"><h3>获胜概率</h3>${barRow(m.home?.name || '主队', Number(p.home || 0))}${barRow('平局', Number(p.draw || 0))}${barRow(m.away?.name || '客队', Number(p.away || 0))}</div>
+    <div class="prob-card"><h3>近期状态</h3><div class="form-line">${formChips(m.home?.form, m.home?.name)}</div><div class="form-line" style="margin-top:10px">${formChips(m.away?.form, m.away?.name)}</div></div>
+  </section>`;
+}
+
+function barRow(label, value) {
+  const width = Math.max(4, Math.min(100, Math.round(value)));
+  return `<div class="bar-row"><span>${safe(label)}</span><i class="bar-track"><b class="bar-fill" style="width:${width}%"></b></i><em>${width}%</em></div>`;
+}
+
+function formChips(form = [], name = '球队') {
+  const rows = Array.isArray(form) && form.length ? form : ['W', 'D', 'L', 'W', 'D'];
+  return `<span style="font-size:12px;color:#777;margin-right:6px">${safe(name)}</span>` + rows.slice(0, 6).map(v => {
+    const key = String(v).slice(0, 1).toLowerCase();
+    const label = key === 'w' ? '胜' : key === 'l' ? '负' : '平';
+    return `<i class="form-chip ${key}">${label}</i>`;
+  }).join('');
+}
+
+function analystPanel(x) {
+  const spf = x.markets.winDrawLose[0];
+  const goals = x.markets.totalGoals.bands[0];
+  const score = x.scores[0];
+  const cards = [
+    ['Claude', spf.label, `防 ${x.markets.doubleChance[0].label}`],
+    ['DeepSeek', goals.label, '节奏优先'],
+    ['Codex', score.score, '比分参考'],
+    ['MiniMax', x.risk.label, `信心 ${x.confidence}%`]
+  ];
+  return `<section class="analyst-panel"><h3>多模型观察</h3><div class="analyst-grid">${cards.map(([name, pick, note]) => `<div class="analyst-card"><strong><i class="analyst-avatar">${safe(name.slice(0, 2))}</i>${safe(name)}</strong><b>${safe(pick)}</b><span>${safe(note)}</span></div>`).join('')}</div></section>`;
 }
 
 function bindBoardEvents() {
@@ -324,6 +366,46 @@ function emptyList() {
   return '<div class="empty compact"><strong>暂无数据</strong><p>换一个顶部菜单看看，或点击刷新同步实时数据。</p></div>';
 }
 
+function teamMini(team = {}) {
+  return `<span class="team-mini">${teamHero(team, 'crest')}<b>${safe(team.name || '球队')}</b></span>`;
+}
+
+function teamHero(team = {}, className = 'hero-crest') {
+  const src = team.logo || team.crest || '';
+  const flag = team.flag || flagFor(team.name);
+  if (src) return `<img class="${className}" src="${safe(src)}" alt="${safe(team.name || '队徽')}" onerror="this.outerHTML='<span class=&quot;${className} flag&quot;>${safe(flag)}</span>'">`;
+  return `<span class="${className} flag">${safe(flag || initial(team.name))}</span>`;
+}
+
+function teamSubline(team = {}, fallback = '球队') {
+  const rank = team.rank ? `排名 ${team.rank}` : fallback;
+  const form = Array.isArray(team.form) && team.form.length ? `近况 ${team.form.slice(0, 5).join('')}` : '公开数据校准';
+  return `${rank} ｜ ${form}`;
+}
+
+function leagueIcon(name = '') {
+  const text = String(name);
+  if (/欧冠|champions/i.test(text)) return '冠';
+  if (/世界杯|world cup|fifa/i.test(text)) return '世';
+  if (/韩职|k league/i.test(text)) return '韩';
+  if (/日职|j league/i.test(text)) return '日';
+  if (/英超|premier/i.test(text)) return '英';
+  return '赛';
+}
+
+function flagFor(name = '') {
+  const text = String(name).toLowerCase();
+  const pairs = [
+    [/阿根廷|argentin/, '🇦🇷'], [/埃及|egypt/, '🇪🇬'], [/瑞士|switzerland|swiss/, '🇨🇭'],
+    [/哥伦比亚|colombia/, '🇨🇴'], [/凯拉特|kairat/, '🇰🇿'], [/尼克希奇|niksic|sutjeska/, '🇲🇪'],
+    [/巴西|brazil/, '🇧🇷'], [/挪威|norway/, '🇳🇴'], [/墨西哥|mexico/, '🇲🇽'],
+    [/英格兰|england/, '🏴'], [/葡萄牙|portugal/, '🇵🇹'], [/西班牙|spain/, '🇪🇸'],
+    [/美国|usa|united states/, '🇺🇸'], [/比利时|belgium/, '🇧🇪'], [/法国|france/, '🇫🇷'],
+    [/德国|germany/, '🇩🇪'], [/意大利|italy/, '🇮🇹'], [/日本|japan/, '🇯🇵'], [/韩国|korea/, '🇰🇷']
+  ];
+  return (pairs.find(([re]) => re.test(text)) || [null, initial(name)])[1];
+}
+
 function sourceShort() {
   if ((meta.mode || '').includes('sporttery')) return '竞彩';
   if ((meta.mode || '').includes('espn')) return '赛程';
@@ -383,6 +465,7 @@ function teamText(row) { return `${row.home?.name || ''} ${row.away?.name || ''}
 function isTodayMatch(match) { const day = chinaDay(new Date(match.kickoff)); return day === chinaDay(new Date()); }
 function chinaDay(date) { if (!Number.isFinite(date.getTime())) return ''; return new Date(date.getTime() + 8 * 3600000).toISOString().slice(0, 10); }
 function fmt(v) { const d = new Date(v); return Number.isFinite(d.getTime()) ? d.toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : String(v || ''); }
+function initial(name='') { return String(name).trim().slice(0, 1) || '队'; }
 function safe(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 $('refreshBtn').onclick = () => load(true);

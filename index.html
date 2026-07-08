@@ -3,18 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>鲸喜足球 · 今日实时预测</title>
-  <link rel="stylesheet" href="./today.css?v=v9-detail" />
+  <title>鲸喜体育赛事预测</title>
+  <link rel="stylesheet" href="./today.css?v=v10-ui" />
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div>
-        <div class="brand">鲸喜足球</div>
-        <h1>今日实时赛事预测</h1>
-        <p>按中国体育彩票公开赛事优先同步，顶部菜单筛选赛事，列表分页预览，点击赛事进入二级详情页。</p>
+      <div class="brand-block">
+        <div class="brand-mark">鲸</div>
+        <div>
+          <h1>鲸喜体育赛事预测</h1>
+          <p>公开赛程同步、赛事分组预览、二级详情页分析。</p>
+        </div>
       </div>
-      <button id="refreshBtn" class="refresh">刷新实时数据</button>
+      <div class="top-actions">
+        <div class="avatar-stack" aria-label="分析团队">
+          <span>AI</span><span>数据</span><span>风控</span>
+        </div>
+        <button id="refreshBtn" class="refresh">刷新数据</button>
+      </div>
     </header>
 
     <section class="live-strip">
@@ -54,6 +61,6 @@
     </footer>
   </div>
 
-  <script type="module" src="./today.js?v=v9-detail"></script>
+  <script type="module" src="./today.js?v=v10-ui"></script>
 </body>
 </html>

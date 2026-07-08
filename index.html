@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>鲸喜体育赛事预测</title>
-  <link rel="stylesheet" href="./today.css?v=v11-lottery" />
+  <link rel="stylesheet" href="./today.css?v=v12-nav" />
 </head>
 <body>
   <div class="app">
@@ -13,7 +13,6 @@
         <div class="brand-mark">鲸</div>
         <div>
           <h1>鲸喜体育赛事预测</h1>
-          <p>公开赛程同步、赛事分组预览、二级详情页分析。</p>
         </div>
       </div>
       <div class="top-actions">
@@ -23,11 +22,6 @@
         <button id="refreshBtn" class="refresh">刷新数据</button>
       </div>
     </header>
-
-    <nav class="product-switch" aria-label="产品菜单">
-      <button class="product-tab active" data-product="sports">赛事预测</button>
-      <button class="product-tab" data-product="lottery">数字彩预测</button>
-    </nav>
 
     <section class="live-strip sports-view">
       <div>
@@ -44,19 +38,29 @@
       <div class="metric"><b id="sourceName">实时</b><span>数据口径</span></div>
     </section>
 
-    <section class="toolbar sports-view">
-      <div class="tabs">
-        <button class="tab active" data-risk="all">全部</button>
-        <button class="tab" data-risk="low">重点</button>
-        <button class="tab" data-risk="medium">谨慎</button>
-        <button class="tab" data-risk="high">高风险</button>
-        <button class="tab" data-risk="avoid">避开</button>
+    <section class="nav-shell" aria-label="核心导航">
+      <nav class="product-switch" aria-label="产品菜单">
+        <button class="product-tab active" data-product="sports">赛事预测</button>
+        <button class="product-tab" data-product="lottery">数字彩预测</button>
+      </nav>
+      <div class="sports-nav sports-view">
+        <div class="tabs">
+          <button class="tab active" data-risk="all">全部</button>
+          <button class="tab" data-risk="low">重点</button>
+          <button class="tab" data-risk="medium">谨慎</button>
+          <button class="tab" data-risk="high">高风险</button>
+          <button class="tab" data-risk="avoid">避开</button>
+        </div>
+        <div class="mode-tabs compact">
+          <button class="mode-tab active" data-mode="today">今日赛事</button>
+          <button class="mode-tab" data-mode="history">历史赛事</button>
+        </div>
+        <select id="sortBy" aria-label="排序">
+          <option value="kickoff">按开赛时间</option>
+          <option value="confidence">按信心排序</option>
+          <option value="risk">按风险排序</option>
+        </select>
       </div>
-      <select id="sortBy" aria-label="排序">
-        <option value="kickoff">按开赛时间</option>
-        <option value="confidence">按信心排序</option>
-        <option value="risk">按风险排序</option>
-      </select>
     </section>
 
     <main id="matchList" class="match-list sports-view"></main>
@@ -67,7 +71,7 @@
     </footer>
   </div>
 
-  <script type="module" src="./today.js?v=v11-lottery"></script>
-  <script type="module" src="./lottery.js?v=v11-lottery"></script>
+  <script type="module" src="./today.js?v=v12-nav"></script>
+  <script type="module" src="./lottery.js?v=v12-nav"></script>
 </body>
 </html>

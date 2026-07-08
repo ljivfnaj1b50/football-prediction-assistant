@@ -14,6 +14,7 @@ if [ -f today.css ]; then cp today.css "$WEB_DIR/today.css"; fi
 if [ -f today.js ]; then cp today.js "$WEB_DIR/today.js"; fi
 if [ -f team-cn-map.js ]; then cp team-cn-map.js "$WEB_DIR/team-cn-map.js"; fi
 if [ -f sporttery-source.js ]; then cp sporttery-source.js "$APP_DIR/sporttery-source.js"; fi
+if [ -f espn-source.js ]; then cp espn-source.js "$APP_DIR/espn-source.js"; fi
 cp styles.css "$WEB_DIR/styles.css"
 if [ -f front-v2.css ]; then cp front-v2.css "$WEB_DIR/front-v2.css"; fi
 cp app.js "$WEB_DIR/app.js"

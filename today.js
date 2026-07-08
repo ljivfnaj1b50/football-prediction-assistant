@@ -141,6 +141,7 @@ function render() {
   $('sourceName').textContent = sourceShort();
   $('liveMode').textContent = sourceText(todayRows.length, historyRows.length);
   $('lastUpdated').textContent = `最近更新：${fmt(meta.updatedAt)} ｜ 自动刷新：5分钟`;
+  updateNavState();
 
   if (screen === 'detail') {
     const selected = analyses.find(x => x.id === selectedId) || sortedRows[0] || analyses[0];
@@ -163,10 +164,6 @@ function filterRows(rows) {
 
 function board(allRows, pageRows, pageCount) {
   return `<section class="quick-board">
-    <div class="mode-tabs">
-      <button class="mode-tab ${viewMode === 'today' ? 'active' : ''}" data-mode="today">今日赛事</button>
-      <button class="mode-tab ${viewMode === 'history' ? 'active' : ''}" data-mode="history">历史赛事</button>
-    </div>
     <div class="league-tabs">${LEAGUE_GROUPS.map(([name]) => `<button class="league-tab ${activeLeague === name ? 'active' : ''}" data-league="${safe(name)}">${safe(name)}</button>`).join('')}</div>
     <div class="list-panel">
       <div class="list-head"><div><b>${viewMode === 'today' ? '今日赛事预览' : '历史赛事预览'}</b><span>每页 10 场，只显示关键信息；点击赛事进入二级详情页</span></div><em>${allRows.length} 场</em></div>
@@ -174,6 +171,15 @@ function board(allRows, pageRows, pageCount) {
       ${pager(pageCount)}
     </div>
   </section>`;
+}
+
+function updateNavState() {
+  document.querySelectorAll('.mode-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === viewMode);
+  });
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.risk === riskFilter);
+  });
 }
 
 function table(rows) {

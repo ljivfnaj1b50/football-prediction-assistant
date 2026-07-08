@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>鲸喜足球 · 今日实时预测</title>
-  <link rel="stylesheet" href="./today.css?v=v8-menu" />
+  <link rel="stylesheet" href="./today.css?v=v9-detail" />
 </head>
 <body>
   <div class="app">
@@ -12,7 +12,7 @@
       <div>
         <div class="brand">鲸喜足球</div>
         <h1>今日实时赛事预测</h1>
-        <p>按中国体育彩票公开赛事优先同步，顶部菜单筛选赛事，列表分页预览，点击后查看完整赛事分析。</p>
+        <p>按中国体育彩票公开赛事优先同步，顶部菜单筛选赛事，列表分页预览，点击赛事进入二级详情页。</p>
       </div>
       <button id="refreshBtn" class="refresh">刷新实时数据</button>
     </header>
@@ -31,8 +31,6 @@
       <div class="metric"><b id="avgConfidence">0%</b><span>平均信心</span></div>
       <div class="metric"><b id="sourceName">实时</b><span>数据口径</span></div>
     </section>
-
-    <section id="topPick" class="top-pick empty-panel">正在生成今日重点推荐...</section>
 
     <section class="toolbar">
       <div class="tabs">
@@ -56,6 +54,6 @@
     </footer>
   </div>
 
-  <script type="module" src="./today.js?v=v8-menu"></script>
+  <script type="module" src="./today.js?v=v9-detail"></script>
 </body>
 </html>

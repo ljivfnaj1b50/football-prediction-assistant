@@ -4,6 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+let loadSporttery = null;
+try { ({ loadSporttery } = require('./sporttery-source')); } catch {}
+
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'jingxi-admin-2026';
 const DATA_FILE = path.join(__dirname, 'data', 'matches.json');
@@ -34,6 +37,10 @@ function listBackups() { if (!fs.existsSync(BACKUP_DIR)) return []; return fs.re
 function isSafeBackupName(name) { return /^matches-[0-9TZ\-]+\.json$/.test(String(name || '')); }
 function requestJson(options) { return new Promise((resolve, reject) => { const req = https.request(options, res => { let body = ''; res.on('data', chunk => body += chunk); res.on('end', () => { try { resolve(JSON.parse(body)); } catch { reject(new Error('json parse failed')); } }); }); req.on('error', reject); req.setTimeout(12000, () => req.destroy(new Error('request timeout'))); req.end(); }); }
 function fetchUrlJson(url) { return new Promise((resolve, reject) => { https.get(url, res => { let body = ''; res.on('data', chunk => body += chunk); res.on('end', () => { try { resolve(JSON.parse(body)); } catch { reject(new Error('public feed parse failed')); } }); }).on('error', reject).setTimeout(12000, function(){ this.destroy(new Error('public feed timeout')); }); }); }
+function chinaDay(date = new Date()) { return new Date(date.getTime() + 8 * 3600000).toISOString().slice(0, 10); }
+function matchDayChina(v) { const d = new Date(v); return Number.isFinite(d.getTime()) ? chinaDay(d) : ''; }
+function isTodayMatch(m) { return matchDayChina(m.kickoff) === chinaDay(); }
+function todayOnly(rows) { const today = rows.filter(isTodayMatch); return today.length ? today : rows; }
 function defaultWeather() { return { tempC: 22, humidity: 55, windKph: 8, rainMm: 0 }; }
 function defaultTeam(name, logo, country) { return { name, rank: 60, logo: logo || '', flag: country || '', lastPlayedAt: '', travelKm: 0, form: [], injuries: [], suspensions: [], publicSentiment: { score: 0, reliability: 0 }, keyPlayers: [] }; }
 function resultToForm(h, a) { if (h > a) return { home: 'W', away: 'L' }; if (h < a) return { home: 'L', away: 'W' }; return { home: 'D', away: 'D' }; }
@@ -79,9 +86,10 @@ function enrichForms(matches) {
 }
 function mapApiFootballFixture(item) { const fixture = item.fixture || {}; const teams = item.teams || {}; const league = item.league || {}; const venue = fixture.venue || {}; return { id: `api-${fixture.id}`, sourceId: fixture.id, competition: league.name || '足球赛事', stage: league.round || '常规赛', kickoff: fixture.date || new Date().toISOString(), status: fixture.status?.long || '未开赛', minute: fixture.status?.elapsed || null, neutral: !teams.home?.winner && !teams.away?.winner, venue: { name: venue.name || '待确认球场', city: venue.city || '', altitudeM: 0 }, home: defaultTeam(teams.home?.name || '主队', teams.home?.logo || '', ''), away: defaultTeam(teams.away?.name || '客队', teams.away?.logo || '', ''), weather: defaultWeather(), tactical: { tempo: 0, press: 0 }, odds: {}, market: { volumeIndex: 0, publicBetPct: {}, oddsMove: {} } }; }
 function normalizePublicMatch(raw, index = 0) { const homeName = raw.home?.name || raw.homeTeam || raw.home || raw.teams?.home?.name || '主队'; const awayName = raw.away?.name || raw.awayTeam || raw.away || raw.teams?.away?.name || '客队'; return { id: raw.id || raw.sourceId || `public-${Date.now()}-${index}`, competition: raw.competition || raw.league?.name || raw.tournament || '足球赛事', stage: raw.stage || raw.round || raw.league?.round || '常规赛', kickoff: raw.kickoff || raw.date || raw.fixture?.date || new Date().toISOString(), status: raw.status || raw.fixture?.status?.long || '待确认', neutral: Boolean(raw.neutral), venue: raw.venue || { name: '待确认球场', city: '', altitudeM: 0 }, home: { ...defaultTeam(homeName, raw.home?.logo || raw.homeLogo || '', raw.home?.flag || raw.homeFlag || ''), ...(raw.home && typeof raw.home === 'object' ? raw.home : {}) }, away: { ...defaultTeam(awayName, raw.away?.logo || raw.awayLogo || '', raw.away?.flag || raw.awayFlag || ''), ...(raw.away && typeof raw.away === 'object' ? raw.away : {}) }, weather: raw.weather || defaultWeather(), tactical: raw.tactical || { tempo: 0, press: 0 }, odds: raw.odds || {}, market: raw.market || { volumeIndex: 0, publicBetPct: {}, oddsMove: {} } }; }
-function mergeLiveWithInternal(livePayload, internalPayload) { const internal = internalPayload?.matches || []; const live = livePayload?.matches || []; const byName = new Map(internal.map(m => [`${m.home?.name}-${m.away?.name}`, m])); const merged = live.map(m => { const extra = byName.get(`${m.home?.name}-${m.away?.name}`); return extra ? { ...m, ...extra, home: { ...m.home, ...extra.home }, away: { ...m.away, ...extra.away }, venue: { ...m.venue, ...extra.venue }, weather: extra.weather || m.weather, tactical: extra.tactical || m.tactical } : m; }); const liveIds = new Set(merged.map(m => `${m.home?.name}-${m.away?.name}`)); internal.forEach(m => { if (!liveIds.has(`${m.home?.name}-${m.away?.name}`)) merged.push(m); }); return { ...livePayload, matches: merged }; }
-function saveHistory(payload) { const day = new Date().toISOString().slice(0, 10); const snapshot = { ...payload, savedAt: new Date().toISOString() }; writeJson(path.join(HISTORY_DIR, `${day}.json`), snapshot); writeJson(path.join(HISTORY_DIR, 'latest.json'), snapshot); }
-async function loadPublicFeedsFromUrls() { const all = []; for (const url of PUBLIC_FEED_URLS) { try { const payload = await fetchUrlJson(url); const list = Array.isArray(payload) ? payload : (payload.matches || payload.fixtures || payload.response || []); list.forEach((item, index) => all.push(normalizePublicMatch(item, index))); } catch {} } return all; }
+function mergeLiveWithInternal(livePayload, internalPayload) { const internal = internalPayload?.matches || []; const live = livePayload?.matches || []; const byName = new Map(internal.map(m => [`${m.home?.name}-${m.away?.name}`, m])); const merged = live.map(m => { const extra = byName.get(`${m.home?.name}-${m.away?.name}`); return extra ? { ...m, ...extra, home: { ...m.home, ...extra.home }, away: { ...m.away, ...extra.away }, venue: { ...m.venue, ...extra.venue }, weather: extra.weather || m.weather, tactical: extra.tactical || m.tactical } : m; }); const liveIds = new Set(merged.map(m => `${m.home?.name}-${m.away?.name}`)); internal.forEach(m => { if (!liveIds.has(`${m.home?.name}-${m.away?.name}`) && isTodayMatch(m)) merged.push(m); }); return { ...livePayload, matches: merged }; }
+function saveHistory(payload) { const day = chinaDay(); const snapshot = { ...payload, savedAt: new Date().toISOString() }; writeJson(path.join(HISTORY_DIR, `${day}.json`), snapshot); writeJson(path.join(HISTORY_DIR, 'latest.json'), snapshot); }
+async function loadSportteryRows() { if (typeof loadSporttery !== 'function') return []; try { const payload = await loadSporttery(); return todayOnly(payload.matches || []); } catch { return []; } }
+async function loadPublicFeedsFromUrls() { const all = []; for (const url of PUBLIC_FEED_URLS) { try { const payload = await fetchUrlJson(url); const list = Array.isArray(payload) ? payload : (payload.matches || payload.fixtures || payload.response || []); list.forEach((item, index) => all.push(normalizePublicMatch(item, index))); } catch {} } return todayOnly(all); }
 async function loadOpenLigaDb() {
   const all = [];
   for (const item of OPENLIGADB_LEAGUES) {
@@ -92,7 +100,7 @@ async function loadOpenLigaDb() {
       if (Array.isArray(rows)) rows.forEach(row => all.push(mapOpenLigaMatch(row)));
     } catch {}
   }
-  return enrichForms(all).filter(m => new Date(m.kickoff).getTime() >= Date.now() - 1000 * 60 * 60 * 24 * 7).slice(0, 160);
+  return todayOnly(enrichForms(all)).slice(0, 160);
 }
 async function loadPublicFeed(force = false) {
   const internal = readJson(DATA_FILE, { updatedAt: new Date().toISOString(), mode: 'empty', sources: [], matches: [] });
@@ -102,15 +110,21 @@ async function loadPublicFeed(force = false) {
   let rows = [];
   let mode = 'auto-local-cache';
   const sources = [];
-  const openLigaRows = await loadOpenLigaDb();
-  if (openLigaRows.length) { rows = rows.concat(openLigaRows); mode = 'auto-openligadb'; sources.push({ name: 'OpenLigaDB公开数据', status: 'ok', detail: `无Key自动同步 ${openLigaRows.length} 场` }); }
-  const publicRows = await loadPublicFeedsFromUrls();
-  if (publicRows.length) { rows = rows.concat(publicRows); mode = 'auto-public-feeds'; sources.push({ name: '公开JSON数据源', status: 'ok', detail: `自动采集 ${publicRows.length} 场` }); }
-  if (API_FOOTBALL_KEY) { const today = new Date().toISOString().slice(0, 10); const result = await requestJson({ hostname: API_FOOTBALL_HOST, path: `/v3/fixtures?date=${today}`, method: 'GET', headers: { 'x-rapidapi-host': API_FOOTBALL_HOST, 'x-rapidapi-key': API_FOOTBALL_KEY } }); const apiRows = Array.isArray(result.response) ? result.response.slice(0, 100).map(mapApiFootballFixture) : []; rows = rows.concat(apiRows); mode = 'auto-live-api'; sources.push({ name: '授权实时接口', status: 'ok', detail: `自动同步 ${apiRows.length} 场` }); }
-  if (!rows.length) { rows = internal.matches || []; sources.push({ name: '本地缓存', status: 'demo', detail: '公开数据源暂未返回，使用服务器缓存数据自动分析' }); }
-  sources.push({ name: '历史沉淀', status: 'ok', detail: '每次自动刷新都会保存历史快照' });
-  sources.push({ name: '自动模型', status: 'ok', detail: '前台自动计算概率、进球区间、比分和风险原因' });
-  const payload = { updatedAt: new Date().toISOString(), mode, live: { enabled: true, auto: true, noKeySource: true, ttlMinutes: Math.round(LIVE_TTL_MS / 60000), count: rows.length }, sources, matches: rows };
+  const sportteryRows = await loadSportteryRows();
+  if (sportteryRows.length) { rows = sportteryRows; mode = 'sporttery-official-live'; sources.push({ name: '中国竞彩网今日赛事', status: 'ok', detail: `实时同步 ${sportteryRows.length} 场，优先作为前台今日数据` }); }
+  if (!rows.length) {
+    const publicRows = await loadPublicFeedsFromUrls();
+    if (publicRows.length) { rows = publicRows; mode = 'auto-public-feeds'; sources.push({ name: '公开JSON今日数据源', status: 'ok', detail: `自动采集 ${publicRows.length} 场` }); }
+  }
+  if (!rows.length && API_FOOTBALL_KEY) { const today = chinaDay(); const result = await requestJson({ hostname: API_FOOTBALL_HOST, path: `/v3/fixtures?date=${today}`, method: 'GET', headers: { 'x-rapidapi-host': API_FOOTBALL_HOST, 'x-rapidapi-key': API_FOOTBALL_KEY } }); const apiRows = Array.isArray(result.response) ? result.response.slice(0, 100).map(mapApiFootballFixture) : []; rows = todayOnly(apiRows); mode = 'auto-live-api'; sources.push({ name: '授权实时接口', status: 'ok', detail: `自动同步 ${rows.length} 场` }); }
+  if (!rows.length) {
+    const openLigaRows = await loadOpenLigaDb();
+    if (openLigaRows.length) { rows = openLigaRows; mode = 'auto-openligadb'; sources.push({ name: 'OpenLigaDB公开数据', status: 'ok', detail: `无Key自动同步 ${openLigaRows.length} 场` }); }
+  }
+  if (!rows.length) { rows = (internal.matches || []).filter(isTodayMatch); if (!rows.length) rows = internal.matches || []; sources.push({ name: '本地缓存', status: 'demo', detail: '今日公开数据源暂未返回，使用服务器缓存数据兜底' }); }
+  sources.push({ name: '历史沉淀', status: 'ok', detail: '每次自动刷新都会保存今天快照' });
+  sources.push({ name: 'AI预测模型', status: 'ok', detail: '前台自动计算胜平负、总进球、比分、风险和方案' });
+  const payload = { updatedAt: new Date().toISOString(), mode, today: chinaDay(), live: { enabled: true, auto: true, officialTodaySource: Boolean(sportteryRows.length), noKeySource: true, ttlMinutes: Math.round(LIVE_TTL_MS / 60000), count: rows.length }, sources, matches: rows };
   const merged = mergeLiveWithInternal(payload, internal);
   writeJson(LIVE_CACHE_FILE, merged); writeJson(PUBLIC_DATA_FILE, merged); saveHistory(merged); return merged;
 }
@@ -119,7 +133,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return send(res, 200, { ok: true });
   if (req.method === 'GET' && pathname === '/api/public-feed') { try { return send(res, 200, await loadPublicFeed(url.searchParams.get('force') === '1')); } catch (err) { const fallback = readJson(DATA_FILE, { updatedAt: new Date().toISOString(), mode: 'fallback-error', sources: [], matches: [] }); fallback.live = { enabled: false, auto: false, reason: err.message }; return send(res, 200, fallback); } }
   if (req.method === 'GET' && pathname === '/api/history-latest') return send(res, 200, readJson(path.join(HISTORY_DIR, 'latest.json'), { ok: false, message: '暂无历史快照' }));
-  if (req.method === 'GET' && pathname === '/api/health') return send(res, 200, { ok: true, service: 'jingxi-football-api', time: new Date().toISOString(), autoRefresh: true, noKeySources: true, openLigaDbLeagues: OPENLIGADB_LEAGUES, liveReady: true, publicFeedUrls: PUBLIC_FEED_URLS.length, publicDataFile: PUBLIC_DATA_FILE, secured: true, backups: hasAdmin(req) ? listBackups().length : undefined, dataFile: hasAdmin(req) ? DATA_FILE : undefined });
+  if (req.method === 'GET' && pathname === '/api/health') return send(res, 200, { ok: true, service: 'jingxi-football-api', time: new Date().toISOString(), today: chinaDay(), autoRefresh: true, sportteryReady: typeof loadSporttery === 'function', noKeySources: true, openLigaDbLeagues: OPENLIGADB_LEAGUES, liveReady: true, publicFeedUrls: PUBLIC_FEED_URLS.length, publicDataFile: PUBLIC_DATA_FILE, secured: true, backups: hasAdmin(req) ? listBackups().length : undefined, dataFile: hasAdmin(req) ? DATA_FILE : undefined });
   if (req.method === 'GET' && pathname === '/api/backups') { if (!requireAdmin(req, res)) return; return send(res, 200, { ok: true, backups: listBackups() }); }
   if (req.method === 'POST' && pathname === '/api/restore') { if (!requireAdmin(req, res)) return; try { const body = await readBody(req); const payload = JSON.parse(body || '{}'); const name = String(payload.name || ''); if (!isSafeBackupName(name)) return send(res, 400, { ok: false, message: '备份文件名不合法' }); const file = path.join(BACKUP_DIR, name); if (!fs.existsSync(file)) return send(res, 404, { ok: false, message: '备份不存在' }); backupCurrentData(); const restorePayload = readJson(file, null); restorePayload.updatedAt = new Date().toISOString(); writeJson(DATA_FILE, restorePayload); writeJson(PUBLIC_DATA_FILE, restorePayload); return send(res, 200, { ok: true, message: '恢复成功，前台数据已同步', restored: name, count: restorePayload.matches?.length || 0 }); } catch (err) { return send(res, 500, { ok: false, message: '恢复失败', detail: err.message }); } }
   if (req.method === 'GET' && pathname === '/api/matches') { if (!requireAdmin(req, res)) return; return send(res, 200, readJson(DATA_FILE)); }

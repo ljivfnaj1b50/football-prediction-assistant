@@ -1,5 +1,6 @@
 const root = document.getElementById('lotteryApp');
 let activeGame = 'dlt';
+let dltMode = 'predict';
 
 const DATA = {
   dlt: {
@@ -176,16 +177,72 @@ function pad(n) { return String(n).padStart(2, '0'); }
 function renderLottery() {
   const data = DATA[activeGame];
   const analysis = activeGame === 'dlt' ? analyzeDlt(data) : analyzeDigits(data);
+  const view = activeGame === 'dlt' ? dltView(data, analysis) : analysis;
   root.innerHTML = `<section class="lottery-hero"><h2>数字彩预测模型</h2><p>按基础频率、共现网络、一阶马尔科夫、组合熵和时间衰减五层评分。模型用于缩小观察范围，不代表确定结果。</p></section>
     <div class="lottery-tabs">${Object.entries(DATA).map(([key, item]) => `<button class="lottery-tab ${activeGame === key ? 'active' : ''}" data-game="${key}">${item.name}</button>`).join('')}</div>
     <section class="lottery-grid">
-      <article class="lottery-card"><div class="lottery-card-head"><div><b>${data.name} 下一期建议</b><span>基于上一期 + 近10期样本</span></div></div><div class="lottery-card-body">${renderMain(data, analysis)}${renderMetrics(analysis.metrics)}</div></article>
+      <article class="lottery-card"><div class="lottery-card-head"><div><b>${data.name} 下一期建议</b><span>${activeGame === 'dlt' ? dltModeText(dltMode) : '基于上一期 + 近10期样本'}</span></div></div><div class="lottery-card-body">${activeGame === 'dlt' ? dltControls() : ''}${renderMain(data, view)}${renderMetrics(view.metrics)}</div></article>
       <article class="lottery-card"><div class="lottery-card-head"><div><b>五层量化框架</b><span>Frequency / Co-occurrence / Markov / Entropy / Decay</span></div></div><div class="lottery-card-body"><div class="formula-stack">${formulaCards()}</div></div></article>
     </section>
-    <section class="lottery-card"><div class="lottery-card-head"><div><b>候选组合与打法</b><span>单式、复式、胆拖/防线</span></div></div><div class="lottery-card-body"><div class="lottery-combos">${analysis.combos.map(c => comboCard(data, c)).join('')}</div></div></section>
+    <section class="lottery-card"><div class="lottery-card-head"><div><b>候选组合与打法</b><span>单式、复式、胆拖/防线</span></div></div><div class="lottery-card-body"><div class="lottery-combos">${view.combos.map(c => comboCard(data, c)).join('')}</div></div></section>
     <section class="lottery-card"><div class="lottery-card-head"><div><b>近期开奖样本</b><span>用于模型计算的最近数据</span></div></div><div class="history-table">${data.history.map(row => historyRow(data, row)).join('')}</div></section>
     <div class="lottery-note">提示：彩票开奖是随机事件，历史频率、遗漏、转移概率只能帮助筛选号码池，不能提高单注理论中奖概率。不要把“冷号必出”或“热号继续热”当作确定规律。</div>`;
   root.querySelectorAll('.lottery-tab').forEach(btn => btn.onclick = () => { activeGame = btn.dataset.game; renderLottery(); });
+  root.querySelectorAll('.dlt-action').forEach(btn => btn.onclick = () => { dltMode = btn.dataset.mode; renderLottery(); });
+}
+
+function dltControls() {
+  const rows = [
+    ['predict', '预测'],
+    ['random1', '随机一注'],
+    ['random5', '随机五注'],
+    ['randomBox', '随机复式']
+  ];
+  return `<div class="dlt-actions">${rows.map(([key, label]) => `<button class="dlt-action ${dltMode === key ? 'active' : ''}" data-mode="${key}">${label}</button>`).join('')}</div>`;
+}
+
+function dltModeText(mode) {
+  return ({
+    predict: '基于上一期 + 近10期样本',
+    random1: '随机生成 1 注标准单式',
+    random5: '随机生成 5 注标准单式',
+    randomBox: '随机生成 7+4 复式覆盖'
+  })[mode] || '基于模型计算';
+}
+
+function dltView(data, analysis) {
+  if (dltMode === 'predict') return analysis;
+  if (dltMode === 'random1') {
+    const one = randomDlt();
+    return { ...analysis, main: one, combos: [{ name: '随机一注', ...one, note: '完全随机生成，适合临时娱乐，不参与模型评分。' }] };
+  }
+  if (dltMode === 'random5') {
+    const rows = Array.from({ length: 5 }, () => randomDlt());
+    return {
+      ...analysis,
+      main: rows[0],
+      combos: rows.map((row, index) => ({ name: `随机第 ${index + 1} 注`, ...row, note: '标准单式随机生成，前区 35 选 5，后区 12 选 2。' }))
+    };
+  }
+  const box = { front: randomPick(35, 7), back: randomPick(12, 4) };
+  return {
+    ...analysis,
+    main: { front: box.front.slice(0, 5), back: box.back.slice(0, 2) },
+    combos: [{ name: '随机复式 7+4', ...box, note: '前区 7 码、后区 4 码，覆盖面更大，成本也会同步上升。' }]
+  };
+}
+
+function randomDlt() {
+  return { front: randomPick(35, 5), back: randomPick(12, 2) };
+}
+
+function randomPick(max, count) {
+  const pool = Array.from({ length: max }, (_, i) => i + 1);
+  for (let i = pool.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count).sort((a, b) => a - b);
 }
 
 function renderMain(data, analysis) {

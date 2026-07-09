@@ -1,90 +1,140 @@
 {
-  "updatedAt": "2026-07-06T14:35:00+08:00",
-  "mode": "internal-data-file-v2",
+  "updatedAt": "2026-07-09T21:05:00+08:00",
+  "mode": "world-cup-quarterfinals-manual-v1",
   "sources": [
-    { "name": "服务器数据文件", "status": "ok", "detail": "前台优先读取实时接口，未配置接口时读取本文件" },
-    { "name": "近期状态", "status": "ok", "detail": "近场战绩由数据文件输入，模型自动计算" },
-    { "name": "伤停停赛", "status": "ok", "detail": "支持球员影响值、主力/轮换角色" },
-    { "name": "视觉素材", "status": "ok", "detail": "支持队徽、国旗、球员照片字段" }
+    { "name": "世界杯1/4决赛公开赛程", "status": "ok", "detail": "已手动录入法国vs摩洛哥、西班牙vs比利时、英格兰vs挪威、阿根廷vs瑞士" },
+    { "name": "近期状态", "status": "proxy", "detail": "根据淘汰赛晋级路径和公开报道做模型代理校准" },
+    { "name": "伤停停赛", "status": "review", "detail": "临场首发公布前仍需二次确认" },
+    { "name": "风控口径", "status": "ok", "detail": "主攻总进球，比分只作参考，避免重仓比分" }
   ],
   "matches": [
     {
-      "id": "internal-001",
-      "competition": "国际足球",
-      "stage": "小组赛",
-      "kickoff": "2026-07-07T04:31:00+08:00",
-      "neutral": false,
-      "venue": { "name": "阿兹特克球场", "city": "Mexico City", "altitudeM": 2240 },
-      "home": {
-        "name": "墨西哥", "rank": 15, "logo": "https://flagcdn.com/w160/mx.png", "flag": "https://flagcdn.com/w80/mx.png",
-        "lastPlayedAt": "2026-07-02T04:00:00+08:00", "travelKm": 120,
-        "form": [{ "result": "W", "gf": 2, "ga": 0 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 3, "ga": 1 },{ "result": "L", "gf": 0, "ga": 1 },{ "result": "W", "gf": 2, "ga": 1 }],
-        "injuries": [{ "name": "边路主力", "role": "starter", "impact": 0.05 }], "suspensions": [],
-        "publicSentiment": { "score": 0.12, "reliability": 0.35 },
-        "keyPlayers": [{ "name": "核心前锋", "role": "进攻核心", "photo": "" },{ "name": "中场组织者", "role": "节奏控制", "photo": "" }]
-      },
-      "away": {
-        "name": "南非", "rank": 58, "logo": "https://flagcdn.com/w160/za.png", "flag": "https://flagcdn.com/w80/za.png",
-        "lastPlayedAt": "2026-07-03T04:00:00+08:00", "travelKm": 4100,
-        "form": [{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 1, "ga": 0 },{ "result": "L", "gf": 0, "ga": 2 },{ "result": "D", "gf": 0, "ga": 0 },{ "result": "L", "gf": 1, "ga": 3 }],
-        "injuries": [], "suspensions": [{ "name": "中卫", "role": "starter", "impact": 0.07 }],
-        "publicSentiment": { "score": -0.08, "reliability": 0.3 },
-        "keyPlayers": [{ "name": "防线核心", "role": "后防支点", "photo": "" },{ "name": "速度边锋", "role": "反击点", "photo": "" }]
-      },
-      "weather": { "tempC": 22, "humidity": 45, "windKph": 11, "rainMm": 0 },
-      "tactical": { "tempo": -0.3, "press": 0.2 }
-    },
-    {
-      "id": "internal-002",
-      "competition": "国际足球",
-      "stage": "小组赛",
-      "kickoff": "2026-07-07T07:20:00+08:00",
+      "id": "wc-qf-france-morocco-2026-07-09",
+      "sourceId": "manual-worldcup-qf-001",
+      "jcNum": "今日001",
+      "competition": "世界杯",
+      "stage": "1/4决赛",
+      "kickoff": "2026-07-09T23:00:00+08:00",
+      "status": "未开赛",
       "neutral": true,
-      "venue": { "name": "BMO Field", "city": "Toronto", "altitudeM": 76 },
+      "venue": { "name": "Boston Stadium", "city": "Foxborough/Boston", "altitudeM": 88 },
       "home": {
-        "name": "韩国", "rank": 23, "logo": "https://flagcdn.com/w160/kr.png", "flag": "https://flagcdn.com/w80/kr.png",
-        "lastPlayedAt": "2026-07-04T02:30:00+08:00", "travelKm": 3200,
-        "form": [{ "result": "W", "gf": 2, "ga": 1 },{ "result": "W", "gf": 3, "ga": 0 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "L", "gf": 0, "ga": 1 },{ "result": "W", "gf": 2, "ga": 0 }],
-        "injuries": [{ "name": "前场轮换", "role": "rotation", "impact": 0.03 }], "suspensions": [],
-        "publicSentiment": { "score": 0.05, "reliability": 0.25 },
-        "keyPlayers": [{ "name": "亚洲核心", "role": "终结点", "photo": "" },{ "name": "中场推进", "role": "转换核心", "photo": "" }]
+        "name": "法国", "rank": 2, "logo": "https://flagcdn.com/w160/fr.png", "flag": "https://flagcdn.com/w80/fr.png",
+        "lastPlayedAt": "2026-07-06T04:00:00+08:00", "travelKm": 900,
+        "form": [{ "result": "W", "gf": 2, "ga": 0 },{ "result": "W", "gf": 3, "ga": 1 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 0 }],
+        "injuries": [], "suspensions": [],
+        "publicSentiment": { "score": 0.18, "reliability": 0.45 },
+        "keyPlayers": [{ "name": "姆巴佩", "role": "速度终结点", "photo": "" },{ "name": "登贝莱", "role": "边路爆点", "photo": "" },{ "name": "奥利塞", "role": "传威胁球", "photo": "" }]
       },
       "away": {
-        "name": "捷克", "rank": 35, "logo": "https://flagcdn.com/w160/cz.png", "flag": "https://flagcdn.com/w80/cz.png",
-        "lastPlayedAt": "2026-07-01T03:00:00+08:00", "travelKm": 1100,
-        "form": [{ "result": "D", "gf": 1, "ga": 1 },{ "result": "L", "gf": 0, "ga": 2 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "D", "gf": 0, "ga": 0 },{ "result": "W", "gf": 1, "ga": 0 }],
+        "name": "摩洛哥", "rank": 12, "logo": "https://flagcdn.com/w160/ma.png", "flag": "https://flagcdn.com/w80/ma.png",
+        "lastPlayedAt": "2026-07-05T08:00:00+08:00", "travelKm": 1200,
+        "form": [{ "result": "W", "gf": 3, "ga": 0 },{ "result": "W", "gf": 2, "ga": 0 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 1, "ga": 0 },{ "result": "W", "gf": 2, "ga": 1 }],
         "injuries": [], "suspensions": [],
-        "publicSentiment": { "score": 0.02, "reliability": 0.2 },
-        "keyPlayers": [{ "name": "高点中锋", "role": "禁区支点", "photo": "" },{ "name": "后腰屏障", "role": "防守核心", "photo": "" }]
+        "publicSentiment": { "score": 0.1, "reliability": 0.38 },
+        "keyPlayers": [{ "name": "阿什拉夫", "role": "右路攻防核心", "photo": "" },{ "name": "布阿迪", "role": "中场新星", "photo": "" }]
       },
-      "weather": { "tempC": 19, "humidity": 60, "windKph": 10, "rainMm": 0 },
-      "tactical": { "tempo": 0.2, "press": 0.1 }
+      "weather": { "tempC": 24, "humidity": 58, "windKph": 10, "rainMm": 0 },
+      "tactical": { "tempo": 0.2, "press": 0.35 },
+      "odds": { "h2h": { "home": 1.62, "draw": 3.55, "away": 5.2 } },
+      "market": { "volumeIndex": 78, "publicBetPct": { "home": 62, "draw": 23, "away": 15 }, "oddsMove": { "home": -0.03, "draw": 0.01, "away": 0.04 } },
+      "note": "法国阵容厚度和锋线爆点占优；摩洛哥组织性强，低比分防反能力突出。主攻总进球偏2/3球，防1球。"
     },
     {
-      "id": "internal-003",
-      "competition": "国际足球",
-      "stage": "小组赛",
-      "kickoff": "2026-07-07T09:45:00+08:00",
-      "neutral": false,
-      "venue": { "name": "BC Place", "city": "Vancouver", "altitudeM": 2 },
+      "id": "wc-qf-spain-belgium-2026-07-10",
+      "sourceId": "manual-worldcup-qf-002",
+      "jcNum": "明日001",
+      "competition": "世界杯",
+      "stage": "1/4决赛",
+      "kickoff": "2026-07-10T23:00:00+08:00",
+      "status": "未开赛",
+      "neutral": true,
+      "venue": { "name": "SoFi Stadium", "city": "Inglewood/Los Angeles", "altitudeM": 38 },
       "home": {
-        "name": "加拿大", "rank": 30, "logo": "https://flagcdn.com/w160/ca.png", "flag": "https://flagcdn.com/w80/ca.png",
-        "lastPlayedAt": "2026-07-03T07:00:00+08:00", "travelKm": 80,
-        "form": [{ "result": "W", "gf": 2, "ga": 1 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 0 },{ "result": "L", "gf": 1, "ga": 2 },{ "result": "D", "gf": 0, "ga": 0 }],
+        "name": "西班牙", "rank": 3, "logo": "https://flagcdn.com/w160/es.png", "flag": "https://flagcdn.com/w80/es.png",
+        "lastPlayedAt": "2026-07-07T04:00:00+08:00", "travelKm": 2100,
+        "form": [{ "result": "W", "gf": 2, "ga": 0 },{ "result": "W", "gf": 1, "ga": 0 },{ "result": "W", "gf": 3, "ga": 0 },{ "result": "D", "gf": 0, "ga": 0 },{ "result": "W", "gf": 2, "ga": 0 }],
         "injuries": [], "suspensions": [],
-        "publicSentiment": { "score": 0.1, "reliability": 0.28 },
-        "keyPlayers": [{ "name": "速度前锋", "role": "冲击点", "photo": "" },{ "name": "边路核心", "role": "推进点", "photo": "" }]
+        "publicSentiment": { "score": 0.15, "reliability": 0.42 },
+        "keyPlayers": [{ "name": "罗德里", "role": "中场控制", "photo": "" },{ "name": "边锋群", "role": "边路爆点", "photo": "" }]
       },
       "away": {
-        "name": "波黑", "rank": 62, "logo": "https://flagcdn.com/w160/ba.png", "flag": "https://flagcdn.com/w80/ba.png",
-        "lastPlayedAt": "2026-07-02T06:00:00+08:00", "travelKm": 2400,
-        "form": [{ "result": "L", "gf": 0, "ga": 1 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "L", "gf": 1, "ga": 3 },{ "result": "D", "gf": 0, "ga": 0 }],
-        "injuries": [{ "name": "中场主力", "role": "starter", "impact": 0.06 }], "suspensions": [],
-        "publicSentiment": { "score": -0.05, "reliability": 0.22 },
-        "keyPlayers": [{ "name": "锋线支点", "role": "终结点", "photo": "" },{ "name": "后防核心", "role": "对抗点", "photo": "" }]
+        "name": "比利时", "rank": 8, "logo": "https://flagcdn.com/w160/be.png", "flag": "https://flagcdn.com/w80/be.png",
+        "lastPlayedAt": "2026-07-07T08:00:00+08:00", "travelKm": 2300,
+        "form": [{ "result": "W", "gf": 3, "ga": 2 },{ "result": "D", "gf": 2, "ga": 2 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "L", "gf": 1, "ga": 2 },{ "result": "W", "gf": 2, "ga": 0 }],
+        "injuries": [], "suspensions": [],
+        "publicSentiment": { "score": 0.07, "reliability": 0.35 },
+        "keyPlayers": [{ "name": "德布劳内", "role": "替补组织点", "photo": "" },{ "name": "卢卡库", "role": "禁区支点", "photo": "" },{ "name": "德凯特拉雷", "role": "前场终结", "photo": "" }]
       },
-      "weather": { "tempC": 17, "humidity": 66, "windKph": 9, "rainMm": 0 },
-      "tactical": { "tempo": 0.1, "press": 0.15 }
+      "weather": { "tempC": 25, "humidity": 55, "windKph": 9, "rainMm": 0 },
+      "tactical": { "tempo": 0.15, "press": 0.25 },
+      "odds": { "h2h": { "home": 1.85, "draw": 3.25, "away": 4.25 } },
+      "market": { "volumeIndex": 72, "publicBetPct": { "home": 53, "draw": 27, "away": 20 }, "oddsMove": { "home": -0.02, "draw": 0.01, "away": 0.03 } },
+      "note": "西班牙防守完整度高，比利时有老将和前场爆点，主攻小中比分。"
+    },
+    {
+      "id": "wc-qf-england-norway-2026-07-11",
+      "sourceId": "manual-worldcup-qf-003",
+      "jcNum": "周六001",
+      "competition": "世界杯",
+      "stage": "1/4决赛",
+      "kickoff": "2026-07-11T22:00:00+08:00",
+      "status": "未开赛",
+      "neutral": true,
+      "venue": { "name": "Hard Rock Stadium", "city": "Miami Gardens", "altitudeM": 2 },
+      "home": {
+        "name": "英格兰", "rank": 4, "logo": "https://flagcdn.com/w160/gb-eng.png", "flag": "https://flagcdn.com/w80/gb-eng.png",
+        "lastPlayedAt": "2026-07-06T10:00:00+08:00", "travelKm": 1900,
+        "form": [{ "result": "W", "gf": 3, "ga": 2 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 0 },{ "result": "W", "gf": 1, "ga": 0 }],
+        "injuries": [], "suspensions": [{ "name": "夸安萨", "role": "rotation", "impact": 0.04 }],
+        "publicSentiment": { "score": 0.14, "reliability": 0.4 },
+        "keyPlayers": [{ "name": "凯恩", "role": "中锋终结", "photo": "" },{ "name": "贝林厄姆", "role": "中前场爆点", "photo": "" },{ "name": "萨卡", "role": "右路推进", "photo": "" }]
+      },
+      "away": {
+        "name": "挪威", "rank": 18, "logo": "https://flagcdn.com/w160/no.png", "flag": "https://flagcdn.com/w80/no.png",
+        "lastPlayedAt": "2026-07-06T06:00:00+08:00", "travelKm": 2100,
+        "form": [{ "result": "W", "gf": 2, "ga": 1 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "W", "gf": 3, "ga": 1 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 0 }],
+        "injuries": [], "suspensions": [],
+        "publicSentiment": { "score": 0.18, "reliability": 0.42 },
+        "keyPlayers": [{ "name": "哈兰德", "role": "顶级终结点", "photo": "" },{ "name": "厄德高", "role": "组织核心", "photo": "" }]
+      },
+      "weather": { "tempC": 29, "humidity": 70, "windKph": 13, "rainMm": 0 },
+      "tactical": { "tempo": 0.35, "press": 0.25 },
+      "odds": { "h2h": { "home": 1.92, "draw": 3.4, "away": 3.75 } },
+      "market": { "volumeIndex": 84, "publicBetPct": { "home": 49, "draw": 24, "away": 27 }, "oddsMove": { "home": -0.01, "draw": 0.00, "away": 0.02 } },
+      "note": "英格兰阵容厚度更好，但挪威哈兰德状态爆，不能单纯低比分处理。主攻总进球偏2/3/4球。"
+    },
+    {
+      "id": "wc-qf-argentina-switzerland-2026-07-11",
+      "sourceId": "manual-worldcup-qf-004",
+      "jcNum": "周六002",
+      "competition": "世界杯",
+      "stage": "1/4决赛",
+      "kickoff": "2026-07-12T02:00:00+08:00",
+      "status": "未开赛",
+      "neutral": true,
+      "venue": { "name": "Kansas City Stadium", "city": "Kansas City", "altitudeM": 277 },
+      "home": {
+        "name": "阿根廷", "rank": 1, "logo": "https://flagcdn.com/w160/ar.png", "flag": "https://flagcdn.com/w80/ar.png",
+        "lastPlayedAt": "2026-07-07T10:00:00+08:00", "travelKm": 1200,
+        "form": [{ "result": "W", "gf": 2, "ga": 1 },{ "result": "W", "gf": 3, "ga": 2 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 0 },{ "result": "W", "gf": 3, "ga": 1 }],
+        "injuries": [], "suspensions": [],
+        "publicSentiment": { "score": 0.2, "reliability": 0.45 },
+        "keyPlayers": [{ "name": "梅西", "role": "核心终结与组织", "photo": "" },{ "name": "恩佐", "role": "中场后插上", "photo": "" }]
+      },
+      "away": {
+        "name": "瑞士", "rank": 16, "logo": "https://flagcdn.com/w160/ch.png", "flag": "https://flagcdn.com/w80/ch.png",
+        "lastPlayedAt": "2026-07-07T07:00:00+08:00", "travelKm": 1300,
+        "form": [{ "result": "W", "gf": 1, "ga": 0 },{ "result": "D", "gf": 1, "ga": 1 },{ "result": "W", "gf": 2, "ga": 1 },{ "result": "D", "gf": 0, "ga": 0 },{ "result": "W", "gf": 2, "ga": 0 }],
+        "injuries": [], "suspensions": [],
+        "publicSentiment": { "score": 0.05, "reliability": 0.32 },
+        "keyPlayers": [{ "name": "扎卡", "role": "中场节奏", "photo": "" },{ "name": "曼赞比", "role": "前场冲击", "photo": "" }]
+      },
+      "weather": { "tempC": 27, "humidity": 62, "windKph": 12, "rainMm": 0 },
+      "tactical": { "tempo": 0.2, "press": 0.2 },
+      "odds": { "h2h": { "home": 1.68, "draw": 3.45, "away": 5.0 } },
+      "market": { "volumeIndex": 80, "publicBetPct": { "home": 61, "draw": 24, "away": 15 }, "oddsMove": { "home": -0.02, "draw": 0.01, "away": 0.03 } },
+      "note": "阿根廷硬实力和关键球能力更强，瑞士纪律性好。主攻阿根廷不败，小中比分。"
     }
   ]
 }

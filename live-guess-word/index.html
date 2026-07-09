@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鲸喜直播猜词互动系统</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;background:radial-gradient(circle at top,#27306a 0,#0b1028 40%,#050814 100%);color:#fff;min-height:100vh;overflow-x:hidden}.app{width:100%;max-width:1280px;margin:0 auto;padding:16px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border:1px solid rgba(117,224,255,.28);border-radius:18px;background:rgba(9,14,36,.7);box-shadow:0 0 28px rgba(89,79,255,.22)}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#50e6ff,#8b5cf6,#ff3d9a);display:grid;place-items:center;font-weight:900;font-size:22px;box-shadow:0 0 25px rgba(106,94,255,.8)}.brand h1{font-size:24px;margin:0;letter-spacing:2px}.brand p{margin:4px 0 0;color:#a9b4ff;font-size:13px}.status{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-weight:700}.hero{margin-top:16px;position:relative;overflow:hidden;border-radius:24px;border:1px solid rgba(142,120,255,.35);background:linear-gradient(135deg,rgba(68,45,160,.65),rgba(17,25,78,.78));padding:28px 22px;text-align:center;box-shadow:0 0 40px rgba(80,80,255,.28)}.hero:before{content:"";position:absolute;inset:-80px;background:radial-gradient(circle at 25% 25%,rgba(0,234,255,.24),transparent 30%),radial-gradient(circle at 80% 15%,rgba(255,61,154,.22),transparent 26%),radial-gradient(circle at 50% 90%,rgba(255,219,77,.2),transparent 25%);pointer-events:none}.hero>*{position:relative}.title{font-size:62px;line-height:1;margin:0;text-shadow:0 5px 0 #251c71,0 0 22px rgba(255,255,255,.35);letter-spacing:4px}.title span{display:block;font-size:66px;color:#ffd74d;text-shadow:0 5px 0 #8a3a00,0 0 20px rgba(255,215,77,.45)}.comment-tip{margin:18px auto 0;max-width:580px;border:2px solid rgba(255,255,255,.26);border-radius:999px;padding:12px 18px;background:rgba(0,0,0,.24);font-weight:900;font-size:20px}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px}.panel{border:1px solid rgba(117,224,255,.24);background:rgba(7,12,32,.72);border-radius:20px;padding:16px;box-shadow:0 0 24px rgba(47,88,255,.16)}.round{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}.round small{color:#a9b4ff;font-weight:700}.timer{font-size:54px;font-weight:1000;color:#88f6ff;text-shadow:0 0 16px rgba(80,230,255,.55)}.bar{height:10px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin:14px 0}.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#47f5ff,#fff35c,#ff579f);transition:width .3s}.word-card{text-align:center;padding:12px;border-radius:18px;background:linear-gradient(135deg,rgba(33,48,98,.9),rgba(14,21,58,.9));border:1px solid rgba(255,255,255,.12)}.word-type{display:inline-block;padding:6px 14px;border-radius:999px;background:#ffd84f;color:#412900;font-weight:1000}.hint{margin-top:10px;color:#f2f5ff;font-size:22px;font-weight:900}.answer{font-size:42px;font-weight:1000;color:#69ffbe;margin:10px 0 0;text-shadow:0 0 18px rgba(105,255,190,.35)}.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.controls button,.send button,.tools button{border:0;border-radius:14px;padding:12px 10px;font-weight:1000;color:#fff;background:linear-gradient(135deg,#6c4dff,#ff3d9a);box-shadow:0 8px 20px rgba(0,0,0,.22);cursor:pointer}.controls button.secondary,.tools button.secondary{background:linear-gradient(135deg,#23366e,#1a2353);border:1px solid rgba(255,255,255,.12)}.list{margin-top:12px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}.row{display:grid;grid-template-columns:1fr 1fr 90px;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035)}.row:nth-child(odd){background:rgba(95,110,255,.08)}.row:last-child{border-bottom:0}.match{height:8px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden}.match i{display:block;height:100%;background:linear-gradient(90deg,#9dff72,#ffe86c)}.rank-item{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:11px 12px;border-radius:14px;margin-bottom:9px;background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.08)}.rank-item b{font-size:18px}.medal{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ffd66a,#bd7b22);font-weight:1000;color:#2b1600}.score{color:#ffe86c;font-weight:1000}.send{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-top:12px}.send input,.tools input,.tools select,.tools textarea{width:100%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);border-radius:14px;color:#fff;padding:12px;outline:0}.send input::placeholder,.tools textarea::placeholder{color:#8e98c7}.danmu{height:180px;overflow:auto;border-radius:16px;padding:10px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);margin-top:12px}.msg{padding:7px 9px;margin-bottom:6px;border-radius:10px;background:rgba(255,255,255,.06);font-weight:800}.msg span{color:#7df0ff;margin-right:6px}.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.tools textarea{grid-column:1/-1;min-height:86px;resize:vertical}.footer{margin-top:16px;color:#8e98c7;text-align:center;font-size:13px}.ok{color:#69ffbe}.warn{color:#ffd84f}@media(max-width:900px){.grid{grid-template-columns:1fr}.title{font-size:42px}.title span{font-size:48px}.round{grid-template-columns:1fr;text-align:center}.controls{grid-template-columns:repeat(2,1fr)}.send{grid-template-columns:1fr}.tools{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand"><div class="logo">鲸</div><div><h1>鲸喜直播猜词互动系统</h1><p>弹幕互动 · 语义猜词 · 排行榜 · 礼物加成 · 本地词库</p></div></div>
+      <div class="status"><div class="pill">在线人数 <span id="online">36</span></div><div class="pill">本轮 <span id="roundNo">1</span></div><div class="pill">模式 <span class="ok">演示版</span></div></div>
+    </header>
+    <section class="hero"><h2 class="title">语义猜词 <span>大挑战</span></h2><div class="comment-tip">💬 评论区发送词语参与游戏｜随机100词</div></section>
+    <main class="grid">
+      <section class="panel">
+        <div class="round"><div><small id="difficulty">难度：简单</small></div><div class="timer" id="timer">03:00</div><div style="text-align:right"><small id="progressText">线索 1/5 · 剩4条</small></div></div>
+        <div class="bar"><i id="timeBar"></i></div>
+        <div class="word-card"><div class="word-type" id="category">名词</div><div class="hint" id="hint">答案 2 字 · 生活用品</div><div class="answer" id="answer">自行车</div></div>
+        <div class="controls"><button id="startBtn">开始/继续</button><button class="secondary" id="pauseBtn">暂停</button><button class="secondary" id="nextBtn">下一题</button><button class="secondary" id="revealBtn">显示/隐藏答案</button></div>
+        <div class="list" id="guessList"></div>
+        <div class="send"><input id="userName" placeholder="用户名，如 小明" /><input id="guessInput" placeholder="评论内容，如 自行车" /><button id="sendBtn">发送弹幕</button></div>
+        <div class="danmu" id="danmu"></div>
+      </section>
+      <aside class="panel">
+        <h2 style="margin:0 0 12px">🏆 排行榜</h2><div id="rank"></div>
+        <h2 style="margin:16px 0 12px">🎁 礼物互动</h2>
+        <div class="controls"><button class="secondary" data-gift="like">点赞 +5分</button><button class="secondary" data-gift="heart">小心心 +60秒</button><button class="secondary" data-gift="beer">大啤酒 随机100词</button><button class="secondary" data-gift="flower">鲜花 双倍得分</button></div>
+        <h2 style="margin:16px 0 12px">⚙️ 词库/配置</h2>
+        <div class="tools"><select id="typeSelect"><option>名词</option><option>动词</option><option>成语</option><option>食物</option><option>体育</option><option>热梗</option></select><input id="customAnswer" placeholder="自定义答案" /><textarea id="wordBank" placeholder="一行一个词，保存后会加入本地词库"></textarea><button id="saveBank">保存词库</button><button class="secondary" id="resetBtn">清空排行</button></div>
+      </aside>
+    </main>
+    <div class="footer">合规定位：直播互动小游戏工具，不提供刷量、挂机、绕过平台限制等功能。</div>
+  </div>
+<script>
+const baseWords=[
+ {w:'自行车',t:'名词',c:'交通工具',h:['答案3字','小时候常见','两个轮子','可以骑','不是汽车']},
+ {w:'舞蹈',t:'名词',c:'才艺',h:['答案2字','身体动作','直播间常见','有节奏','可以表演']},
+ {w:'火锅',t:'食物',c:'美食',h:['答案2字','冬天常吃','有锅底','可以涮菜','四川重庆很出名']},
+ {w:'篮球',t:'体育',c:'运动',h:['答案2字','圆形','需要投篮','五人运动','NBA']},
+ {w:'风车',t:'名词',c:'物品',h:['答案2字','和风有关','会旋转','荷兰常见','也可做玩具']},
+ {w:'电脑',t:'名词',c:'电子产品',h:['答案2字','办公学习','有屏幕键盘','可以直播','不是手机']},
+ {w:'唱歌',t:'动词',c:'才艺',h:['答案2字','用声音','直播才艺','有旋律','KTV']},
+ {w:'苹果',t:'食物',c:'水果',h:['答案2字','红色或绿色','可以吃','也像手机品牌','水果']},
+ {w:'红包',t:'名词',c:'社交',h:['答案2字','过年常见','微信也有','里面有钱','红色']},
+ {w:'坚持',t:'动词',c:'状态',h:['答案2字','不放弃','低谷需要','长期做','成功前常见']}
+];
+let words=JSON.parse(localStorage.getItem('jw_words')||'null')||baseWords;
+let current=null,round=1,time=180,total=180,timerId=null,showAnswer=true,doubleScore=false;
+let scores=JSON.parse(localStorage.getItem('jw_scores')||'{}');
+const $=id=>document.getElementById(id);
+function pick(){current=words[Math.floor(Math.random()*words.length)];time=180;total=180;round++;$('roundNo').textContent=round;$('category').textContent=current.t;$('hint').textContent=`${current.h[0]} · ${current.c}`;$('answer').textContent=showAnswer?current.w:'•••';$('difficulty').textContent='难度：简单';$('progressText').textContent=`线索 1/5 · 剩${Math.max(0,current.h.length-1)}条`;renderGuesses([]);tick();}
+function tick(){let m=String(Math.floor(time/60)).padStart(2,'0'),s=String(time%60).padStart(2,'0');$('timer').textContent=`${m}:${s}`;$('timeBar').style.width=Math.max(0,time/total*100)+'%';}
+function start(){if(!current)pick();clearInterval(timerId);timerId=setInterval(()=>{time--;tick();if(time<=0){clearInterval(timerId);addMsg('系统',`本轮结束，答案：${current.w}`);}},1000)}
+function pause(){clearInterval(timerId)}
+function sim(a,b){if(a===b)return 100;let al=[...a],bl=[...b],dp=Array(al.length+1).fill(0).map(()=>Array(bl.length+1).fill(0));for(let i=0;i<=al.length;i++)dp[i][0]=i;for(let j=0;j<=bl.length;j++)dp[0][j]=j;for(let i=1;i<=al.length;i++)for(let j=1;j<=bl.length;j++)dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+(al[i-1]===bl[j-1]?0:1));let max=Math.max(al.length,bl.length)||1;let v=Math.round((1-dp[al.length][bl.length]/max)*100);if(a.includes(b)||b.includes(a))v=Math.max(v,70);return Math.max(0,Math.min(100,v));}
+let latest=[];function send(){if(!current)pick();let name=$('userName').value.trim()||['小花','阿龙','明天再说','Uncle G','不在'][Math.floor(Math.random()*5)];let text=$('guessInput').value.trim();if(!text)return;let m=sim(text,current.w);let win=text===current.w;let add=win?100:m>=80?30:m>=60?10:0;if(doubleScore)add*=2;scores[name]=(scores[name]||0)+add;latest.unshift({name,text,m});latest=latest.slice(0,12);renderGuesses(latest);renderRank();addMsg(name,text+(win?' ✅ 命中答案':''));$('guessInput').value='';if(win){addMsg('系统',`${name} 猜中【${current.w}】，+${add}分`);setTimeout(pick,1200)}}
+function renderGuesses(arr){$('guessList').innerHTML='<div class="row" style="font-weight:1000;background:rgba(80,230,255,.12)"><div>用户</div><div>关键词</div><div>匹配度</div></div>'+arr.map(x=>`<div class="row"><div>${x.name}</div><div>${x.text}</div><div><b>${x.m}%</b><div class="match"><i style="width:${x.m}%"></i></div></div></div>`).join('')}
+function renderRank(){let arr=Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,10);$('rank').innerHTML=arr.length?arr.map((x,i)=>`<div class="rank-item"><div class="medal">${i+1}</div><b>${x[0]}</b><div class="score">${x[1]}分</div></div>`).join(''):'<p class="warn">暂无积分，先发一条弹幕。</p>';localStorage.setItem('jw_scores',JSON.stringify(scores));}
+function addMsg(n,t){let d=document.createElement('div');d.className='msg';d.innerHTML=`<span>${n}：</span>${t}`;$('danmu').prepend(d);}
+function gift(type){if(type==='like'){scores['直播间点赞']= (scores['直播间点赞']||0)+5;addMsg('礼物','点赞 +5分')}if(type==='heart'){time+=60;total+=60;addMsg('礼物','小心心 加时60秒')}if(type==='beer'){addMsg('礼物','大啤酒 触发随机词');pick()}if(type==='flower'){doubleScore=true;addMsg('礼物','鲜花 全局双倍得分已开启')}renderRank();tick();}
+$('startBtn').onclick=start;$('pauseBtn').onclick=pause;$('nextBtn').onclick=pick;$('revealBtn').onclick=()=>{showAnswer=!showAnswer;$('answer').textContent=showAnswer&&current?current.w:'•••'};$('sendBtn').onclick=send;$('guessInput').onkeydown=e=>{if(e.key==='Enter')send()};document.querySelectorAll('[data-gift]').forEach(b=>b.onclick=()=>gift(b.dataset.gift));$('saveBank').onclick=()=>{let custom=$('customAnswer').value.trim();if(custom)words.push({w:custom,t:$('typeSelect').value,c:'自定义',h:[`答案${custom.length}字`,'直播间自定义词','请根据提示猜','越接近匹配度越高','评论区发送答案']});let lines=$('wordBank').value.split('\n').map(x=>x.trim()).filter(Boolean);lines.forEach(w=>words.push({w,t:$('typeSelect').value,c:'自定义词库',h:[`答案${w.length}字`,'来自本地词库','请发送词语','匹配越高越接近','猜中得分']}));localStorage.setItem('jw_words',JSON.stringify(words));addMsg('系统',`已保存 ${lines.length+(custom?1:0)} 个词`)};$('resetBtn').onclick=()=>{scores={};renderRank();addMsg('系统','排行榜已清空')};setInterval(()=>{$('online').textContent=30+Math.floor(Math.random()*48)},3000);pick();renderRank();addMsg('系统','演示版已启动：可手动输入弹幕测试。');
+</script>
+</body>
+</html>

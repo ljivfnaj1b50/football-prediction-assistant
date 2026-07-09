@@ -1,14 +1,19 @@
 const https = require('https');
 
-const SPORTTERY_MATCH_URL = process.env.SPORTTERY_MATCH_URL || 'https://webapi.sporttery.cn/gateway/jc/football/getMatchListV1.qry?clientCode=3001';
+const SPORTTERY_MATCH_URL = process.env.SPORTTERY_MATCH_URL || 'https://webapi.sporttery.cn/gateway/uniform/football/getMatchListV1.qry?clientCode=3001';
 
 function getJson(url) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 JingxiFootball/4.0',
-        'Accept': 'application/json,text/plain,*/*',
-        'Referer': 'https://www.sporttery.cn/'
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/138 Safari/537.36',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Origin': 'https://www.sporttery.cn',
+        'Referer': 'https://www.sporttery.cn/jc/zqszsc/index.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-site'
       }
     }, res => {
       let body = '';
@@ -38,8 +43,8 @@ function collectRows(input, rows = []) {
     return rows;
   }
   if (typeof input !== 'object') return rows;
-  const home = pick(input, ['homeTeamName', 'homeTeam', 'h_cn', 'hostName', 'home', 'teamHName']);
-  const away = pick(input, ['awayTeamName', 'awayTeam', 'a_cn', 'guestName', 'away', 'teamAName']);
+  const home = pick(input, ['homeTeamAllName', 'homeTeamAbbName', 'homeTeamName', 'homeTeam', 'h_cn', 'hostName', 'home', 'teamHName']);
+  const away = pick(input, ['awayTeamAllName', 'awayTeamAbbName', 'awayTeamName', 'awayTeam', 'a_cn', 'guestName', 'away', 'teamAName']);
   if (home && away) rows.push(input);
   Object.values(input).forEach(value => {
     if (value && typeof value === 'object') collectRows(value, rows);
@@ -64,7 +69,8 @@ function normalizeKickoff(row) {
 }
 
 function normalizeOdds(raw) {
-  const box = raw?.had || raw?.hhad || raw?.spf || raw?.odds || raw || {};
+  const list = Array.isArray(raw?.oddsList) ? raw.oddsList : [];
+  const box = list.find(item => item.poolCode === 'HAD') || list.find(item => item.poolCode === 'HHAD') || raw?.had || raw?.hhad || raw?.spf || raw?.odds || raw || {};
   const home = Number(pick(box, ['h', 'home', 'win', 'sp3', 'fixedOddsH'], 0));
   const draw = Number(pick(box, ['d', 'draw', 'sp1', 'fixedOddsD'], 0));
   const away = Number(pick(box, ['a', 'away', 'lose', 'sp0', 'fixedOddsA'], 0));
@@ -78,17 +84,18 @@ function normalizeLogo(v) {
 function mapSporttery(row, index = 0) {
   const matchId = pick(row, ['matchId', 'id', 'mid', 'matchNo'], `sporttery-${index}`);
   const num = pick(row, ['matchNumStr', 'matchNum', 'num', 'issueNum', 'matchSerialNo'], '待编号');
-  const league = pick(row, ['leagueName', 'l_cn', 'league', 'competition'], '竞彩足球');
-  const home = pick(row, ['homeTeamName', 'homeTeam', 'h_cn', 'hostName', 'home', 'teamHName'], '主队');
-  const away = pick(row, ['awayTeamName', 'awayTeam', 'a_cn', 'guestName', 'away', 'teamAName'], '客队');
+  const league = pick(row, ['leagueAllName', 'leagueAbbName', 'leagueName', 'l_cn', 'league', 'competition'], '竞彩足球');
+  const home = pick(row, ['homeTeamAllName', 'homeTeamAbbName', 'homeTeamName', 'homeTeam', 'h_cn', 'hostName', 'home', 'teamHName'], '主队');
+  const away = pick(row, ['awayTeamAllName', 'awayTeamAbbName', 'awayTeamName', 'awayTeam', 'a_cn', 'guestName', 'away', 'teamAName'], '客队');
   return {
     id: `sporttery-${matchId}`,
     sourceId: matchId,
+    businessDate: pick(row, ['businessDate', 'matchNumDate'], ''),
     jcNum: num,
     competition: league,
     stage: pick(row, ['matchWeek', 'round', 'stage'], '竞足'),
     kickoff: normalizeKickoff(row),
-    status: pick(row, ['matchStatus', 'status', 'saleStatus'], '销售中'),
+    status: pick(row, ['matchStatus', 'status', 'sellStatus', 'saleStatus'], '销售中'),
     neutral: false,
     venue: { name: pick(row, ['venue', 'stadium'], ''), city: '', altitudeM: 0 },
     home: { name: home, rank: 60, logo: normalizeLogo(pick(row, ['homeLogo', 'h_logo', 'homeTeamLogo'], '')), flag: '', lastPlayedAt: '', travelKm: 0, form: [], injuries: [], suspensions: [], publicSentiment: { score: 0, reliability: 0 }, keyPlayers: [] },
@@ -103,6 +110,7 @@ function mapSporttery(row, index = 0) {
 
 async function loadSporttery() {
   const payload = await getJson(SPORTTERY_MATCH_URL);
+  if (String(payload?.errorCode) !== '0') throw new Error(payload?.errorMessage || 'sporttery official api failed');
   const rows = collectRows(payload).map(mapSporttery).filter(m => m.home.name && m.away.name);
   return {
     updatedAt: new Date().toISOString(),
